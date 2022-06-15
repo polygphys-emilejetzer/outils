@@ -147,7 +147,10 @@ class BaseDeDonnées:
 
         """
         with self.begin() as con:
-            values.to_sql(table, con, if_exists='replace')
+            requête = self.table(table).update()\
+                                       .where(values.index == self.table(table).column['index'])\
+                                       .values(values)
+            con.execute(requête)
 
     def insert(self, table: str, values: pd.DataFrame):
         """
@@ -162,7 +165,7 @@ class BaseDeDonnées:
 
         """
         with self.begin() as con:
-            values.to_sql(table, con, if_exists='fail')
+            values.to_sql(table, con, if_exists='append')
 
     def append(self, table: str, values: pd.DataFrame):
         """
