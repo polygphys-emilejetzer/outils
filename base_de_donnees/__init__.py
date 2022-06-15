@@ -148,7 +148,7 @@ class BaseDeDonnées:
         """
         with self.begin() as con:
             requête = self.table(table).update()\
-                                       .where(values.index == self.table(table).column['index'])\
+                                       .where(values.index == self.table(table).columns['index'])\
                                        .values(values)
             con.execute(requête)
 
