@@ -147,10 +147,11 @@ class BaseDeDonnées:
 
         """
         with self.begin() as con:
-            requête = self.table(table).update()\
-                                       .where(values.index == self.table(table).columns['index'])\
-                                       .values(values)
-            con.execute(requête)
+            for index, rangée in values.iterrows():
+                requête = self.table(table).update()\
+                                           .where(index == self.table(table).columns['index'])\
+                                           .values(rangée)
+                con.execute(requête)
 
     def insert(self, table: str, values: pd.DataFrame):
         """
