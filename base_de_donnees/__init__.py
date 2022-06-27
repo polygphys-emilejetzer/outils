@@ -44,7 +44,7 @@ class BaseDeDonnéesConfig(FichierConfig):
 class BaseDeDonnées:
     """Lien avec une base de données spécifique."""
 
-    def __init__(self, adresse: str, metadata: sqla.MetaData):
+    def __init__(self, adresse: str, metadata: sqla.MetaData, index_col='index'):
         """
         Lien avec la base de donnée se trouvant à adresse.
 
@@ -67,6 +67,8 @@ class BaseDeDonnées:
         # Structure de la base de données
         # https://docs.sqlalchemy.org/en/14/core/schema.html
         self.metadata = metadata
+
+        self.index_col = index_col
 
     # Interface de sqlalchemy
 
@@ -120,7 +122,7 @@ class BaseDeDonnées:
         # Si une liste de colonnes est fournie, on vérifie qu'elles sont
         # toutes présentes dans le tableau.
         # On utilise aussi les objets Column du tableau
-        columns = [self.table(table).columns['index']] + list(
+        columns = [self.table(table).columns[self.index_col]] + list(
             filter(lambda x: x.name in columns, self.table(table).columns))
 
         requête = sqla.select(columns).select_from(self.table(table))
@@ -129,7 +131,7 @@ class BaseDeDonnées:
             requête = requête.where(clause)
 
         with self.begin() as con:
-            df = pd.read_sql(requête, con, index_col='index')
+            df = pd.read_sql(requête, con, index_col=self.index_col)
 
         return df
 
@@ -149,7 +151,7 @@ class BaseDeDonnées:
         with self.begin() as con:
             for index, rangée in values.iterrows():
                 requête = self.table(table).update()\
-                                           .where(index == self.table(table).columns['index'])\
+                                           .where(index == self.table(table).columns[self.index_col])\
                                            .values(rangée)
                 con.execute(requête)
 
@@ -202,8 +204,8 @@ class BaseDeDonnées:
             index = values.index.name
             idx = values.index
         else:
-            index = 'index'
-            idx = pd.Index([values], name='index')
+            index = self.index_col
+            idx = pd.Index([values], name=index)
         for i in idx:
             clause = self.table(table).columns[index] == 1
             r = requête.where(clause)
@@ -345,7 +347,7 @@ class BaseDeDonnées:
 
         """
         res = pd.Index(c.name for c in self.table(
-            table).columns if c.name != 'index')
+            table).columns if c.name != self.index_col)
 
         return res
 
@@ -364,7 +366,7 @@ class BaseDeDonnées:
 
         with self.begin() as con:
             résultat = con.execute(requête)
-            res = pd.Index(r['index'] for r in résultat)
+            res = pd.Index(r[self.index_col] for r in résultat)
             return res
 
     def loc(self,
@@ -456,7 +458,7 @@ class BaseDeDonnées:
         elif isinstance(type_fichier, str):
             type_fichier = TYPES_FICHIERS[type_fichier]
 
-        df = type_fichier(chemin, index_col='index')
+        df = type_fichier(chemin, index_col=self.index_col)
 
         self.màj(table, df)
 
@@ -464,7 +466,7 @@ class BaseDeDonnées:
 class BaseTableau:
     """Encapsulation de la classe BaseDeDonnées."""
 
-    def __init__(self, db: BaseDeDonnées, table: str):
+    def __init__(self, db: BaseDeDonnées, table: str, index_col: str = 'index'):
         """
         Encapsule de la classe BaseDeDonnées.
 
@@ -479,7 +481,14 @@ class BaseTableau:
 
         """
         self.table: str = table
-        self.db: BaseDeDonnées = db
+        self.index_col = index_col
+
+        if isinstance(db, str):
+            self.db: BaseDeDonnées = BaseDeDonnées(db, MetaData(), index_col)
+            moteur = self.db.create_engine()
+            self.db.metadata.reflect(moteur)
+        else:
+            self.db: BaseDeDonnées = db
 
     def __getattr__(self, attr: str) -> Any:
         """
@@ -493,26 +502,33 @@ class BaseTableau:
         :raises AttributeError: Si l'attribut ne peut pas être trouvé.
 
         """
+        résultat = None
+        try:
+            # Pour utiliser des colonnes d'index différentes, avec une même base de données.
+            self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
         if hasattr(BaseDeDonnées, attr):
             obj = getattr(self.db, attr)
-
             if isinstance(obj, Callable):
                 sig = signature(obj)
 
                 if len(sig.parameters) == 1 and 'table' in sig.parameters:
-                    return partial(obj, self.table)()
+                    résultat = partial(obj, self.table)()
                 elif 'table' in sig.parameters:
-                    return partial(obj, self.table)
+                    résultat = partial(obj, self.table)
                 else:
-                    return obj
+                    résultat = obj
             else:
-                return obj
+                résultat = obj
         elif hasattr(pd.DataFrame, attr):
-            return getattr(self.df, attr)
+            résultat = getattr(self.df, attr)
         else:
             msg = f'{self!r} de type {type(self)} n\'a pas d\'attribut {attr}\
 , ni (self.__db: BaseDeDonnées, self.df: pandas.DataFrame).'
             raise AttributeError(msg)
+        finally:
+            self.db.index_col = vieux_index_col
+
+        return résultat
 
     @ property
     def df(self) -> pd.DataFrame:
