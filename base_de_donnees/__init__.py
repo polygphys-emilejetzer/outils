@@ -362,7 +362,7 @@ class BaseDeDonnées:
 
         """
         requête = sqla.select([self.table(
-            table).columns['index']]).select_from(self.table(table))
+            table).columns[self.index_col]]).select_from(self.table(table))
 
         with self.begin() as con:
             résultat = con.execute(requête)
