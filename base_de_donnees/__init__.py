@@ -521,10 +521,10 @@ class BaseTableau:
                     résultat = obj
             elif hasattr(pd.DataFrame, attr):
                 résultat = getattr(self.df, attr)
-        else:
-            msg = f'{self!r} de type {type(self)} n\'a pas d\'attribut {attr}\
-, ni (self.__db: BaseDeDonnées, self.df: pandas.DataFrame).'
-            raise AttributeError(msg)
+            else:
+                msg = f'{self!r} de type {type(self)} n\'a pas d\'attribut {attr}\
+    , ni (self.__db: BaseDeDonnées, self.df: pandas.DataFrame).'
+                raise AttributeError(msg)
         finally:
             self.db.index_col = vieux_index_col
 
