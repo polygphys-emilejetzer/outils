@@ -484,7 +484,8 @@ class BaseTableau:
         self.index_col = index_col
 
         if isinstance(db, str):
-            self.db: BaseDeDonnées = BaseDeDonnées(db, MetaData(), index_col)
+            self.db: BaseDeDonnées = BaseDeDonnées(
+                db, sqla.MetaData(), index_col)
             moteur = self.db.create_engine()
             self.db.metadata.reflect(moteur)
         else:
