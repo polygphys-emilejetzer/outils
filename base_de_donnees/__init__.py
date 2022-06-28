@@ -506,21 +506,21 @@ class BaseTableau:
         try:
             # Pour utiliser des colonnes d'index différentes, avec une même base de données.
             self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
-        if hasattr(BaseDeDonnées, attr):
-            obj = getattr(self.db, attr)
-            if isinstance(obj, Callable):
-                sig = signature(obj)
+            if hasattr(BaseDeDonnées, attr):
+                obj = getattr(self.db, attr)
+                if isinstance(obj, Callable):
+                    sig = signature(obj)
 
-                if len(sig.parameters) == 1 and 'table' in sig.parameters:
-                    résultat = partial(obj, self.table)()
-                elif 'table' in sig.parameters:
-                    résultat = partial(obj, self.table)
+                    if len(sig.parameters) == 1 and 'table' in sig.parameters:
+                        résultat = partial(obj, self.table)()
+                    elif 'table' in sig.parameters:
+                        résultat = partial(obj, self.table)
+                    else:
+                        résultat = obj
                 else:
                     résultat = obj
-            else:
-                résultat = obj
-        elif hasattr(pd.DataFrame, attr):
-            résultat = getattr(self.df, attr)
+            elif hasattr(pd.DataFrame, attr):
+                résultat = getattr(self.df, attr)
         else:
             msg = f'{self!r} de type {type(self)} n\'a pas d\'attribut {attr}\
 , ni (self.__db: BaseDeDonnées, self.df: pandas.DataFrame).'
