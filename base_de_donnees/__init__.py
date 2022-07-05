@@ -118,6 +118,8 @@ class BaseDeDonnées:
         # Si aucune colonne n'est spécifiée, on les prends toutes.
         if not len(columns):
             columns = self.columns(table)
+           
+        print(f'{table=}, {self.index_col=}')
 
         # Si une liste de colonnes est fournie, on vérifie qu'elles sont
         # toutes présentes dans le tableau.
@@ -480,7 +482,7 @@ class BaseTableau:
         :rtype: NoneType
 
         """
-        self.table: str = table
+        self.nom_table: str = nom_table
         self.index_col = index_col
 
         if isinstance(db, str):
@@ -515,9 +517,9 @@ class BaseTableau:
                     sig = signature(obj)
 
                     if len(sig.parameters) == 1 and 'table' in sig.parameters:
-                        résultat = partial(obj, self.table)()
+                        résultat = partial(obj, self.nom_table)()
                     elif 'table' in sig.parameters:
-                        résultat = partial(obj, self.table)
+                        résultat = partial(obj, self.nom_table)
                     else:
                         résultat = obj
                 else:
