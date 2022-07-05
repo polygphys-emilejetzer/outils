@@ -118,8 +118,6 @@ class BaseDeDonnées:
         # Si aucune colonne n'est spécifiée, on les prends toutes.
         if not len(columns):
             columns = self.columns(table)
-           
-        print(f'{table=}, {self.index_col=}')
 
         # Si une liste de colonnes est fournie, on vérifie qu'elles sont
         # toutes présentes dans le tableau.
@@ -508,9 +506,7 @@ class BaseTableau:
         résultat = None
         try:
             # Pour utiliser des colonnes d'index différentes, avec une même base de données.
-            print(f'{self.db.index_col=}, {self.index_col=}')
             self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
-            print(f'{self.db.index_col=}, {self.index_col=}')
             if hasattr(BaseDeDonnées, attr):
                 obj = getattr(self.db, attr)
                 if isinstance(obj, Callable):
@@ -542,7 +538,6 @@ class BaseTableau:
                 raise AttributeError(msg)
         finally:
             self.db.index_col = vieux_index_col
-            print(f'{self.db.index_col=}, {self.index_col=}')
 
         return résultat
 
