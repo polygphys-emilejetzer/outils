@@ -482,7 +482,7 @@ class BaseTableau:
         :rtype: NoneType
 
         """
-        self.nom_table: str = nom_table
+        self.nom_table: str = table
         self.index_col = index_col
 
         if isinstance(db, str):
