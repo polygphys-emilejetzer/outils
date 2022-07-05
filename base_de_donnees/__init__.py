@@ -506,7 +506,9 @@ class BaseTableau:
         résultat = None
         try:
             # Pour utiliser des colonnes d'index différentes, avec une même base de données.
+            print(f'{self.db.index_col=}, {self.index_col=}')
             self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
+            print(f'{self.db.index_col=}, {self.index_col=}')
             if hasattr(BaseDeDonnées, attr):
                 obj = getattr(self.db, attr)
                 if isinstance(obj, Callable):
@@ -528,6 +530,7 @@ class BaseTableau:
                 raise AttributeError(msg)
         finally:
             self.db.index_col = vieux_index_col
+            print(f'{self.db.index_col=}, {self.index_col=}')
 
         return résultat
 
@@ -535,22 +538,3 @@ class BaseTableau:
     def df(self) -> pd.DataFrame:
         """Le tableau comme pandas.DataFrame."""
         return self.select()
-
-    def append(self, values: Union[pd.Series, pd.DataFrame] = None):
-        """
-        Ajoute des valeurs au tableau.
-
-        :param values: Valeurs à ajouter, defaults to None
-        :type values: Union[pd.Series, pd.DataFrame], optional
-        :return: None
-        :rtype: NoneType
-
-        """
-        if values is None:
-            cols, idx = self.columns, [max(self.index, default=-1) + 1]
-            values = pd.DataFrame(None, columns=cols, index=[idx])
-        elif isinstance(values, pd.Series):
-            cols, idx = self.columns, [max(self.index, default=-1) + 1]
-            values = pd.DataFrame([values], index=[idx])
-
-        self.db.append(self.table, values)
