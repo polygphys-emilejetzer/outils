@@ -6,7 +6,7 @@ import pathlib  # Manipulation de chemins
 
 # Description de signatures de fonctions
 from typing import Union, Callable, Any
-from functools import partial  # Manipuler des fonctions
+from functools import partial, wraps  # Manipuler des fonctions
 from inspect import signature  # Utiliser les signatures de fonctions
 
 # Bibliothèques via PIPy
