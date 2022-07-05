@@ -519,7 +519,17 @@ class BaseTableau:
                     if len(sig.parameters) == 1 and 'table' in sig.parameters:
                         résultat = partial(obj, self.nom_table)()
                     elif 'table' in sig.parameters:
-                        résultat = partial(obj, self.nom_table)
+                        partielle = partial(obj, self.nom_table)
+                        
+                        @wraps(partielle)
+                        def résultat(*args, **kargs):
+                            try:
+                                self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
+                                res = partielle(*args, **kargs)
+                            finally:
+                                self.db.index_col = vieux_index_col
+                            
+                            return res
                     else:
                         résultat = obj
                 else:
