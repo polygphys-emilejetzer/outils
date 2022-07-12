@@ -289,7 +289,7 @@ class Formulaire(BaseTableau):
                 _[c.cget('text')] = v.instate(['selected'])
 
         _ = pd.Series(_)
-
+        print(_)
         self.append(_)
         self.effacer()
 
