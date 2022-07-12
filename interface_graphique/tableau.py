@@ -284,11 +284,11 @@ class Formulaire(BaseTableau):
         _ = {}
         for c, v in self.widgets.loc[0, :].items():
             if hasattr(v, 'get'):
-                _[c.cget('text')] = v.get()
+                _[c.cget('text')] = [v.get()]
             elif isinstance(v, tk.Checkbutton):
-                _[c.cget('text')] = v.instate(['selected'])
+                _[c.cget('text')] = [v.instate(['selected'])]
 
-        _ = pd.Series(_)
+        _ = pd.DataFrame(_)
         print(_)
         self.append(_)
         self.effacer()
