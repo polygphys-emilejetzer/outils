@@ -289,7 +289,6 @@ class Formulaire(BaseTableau):
                 _[c.cget('text')] = [v.instate(['selected'])]
 
         _ = pd.DataFrame(_)
-        print(_)
         self.append(_)
         self.effacer()
 
