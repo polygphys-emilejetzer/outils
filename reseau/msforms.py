@@ -3,20 +3,19 @@
 msforms.
 
 Suivre les modifications à des fichiers Excel contenant les résultats de
-formulaires."""
+formulaires.
+"""
 
 # Bibliothèque standard
-import configparser as cp
 
-from pathlib import Path
 from datetime import datetime as dt
 
 # Bibliothèque PIPy
 import pandas as pd
 
-# Improts relatifs
+# Imports relatifs
 from ..config import FichierConfig
-from . import FichierLointain
+from ..base_de_donnees import BaseTableau
 
 
 class MSFormConfig(FichierConfig):
@@ -182,3 +181,13 @@ class MSForm:
         cadre = self.nouvelles_entrées()
         self.config.set('màj', 'dernière', dt.now().isoformat())
         self.action(cadre)
+
+
+class MSFormExportBD(MSForm):
+
+    def action(self, cadre: pd.DataFrame):
+        adresse = self.config.get('bd', 'adresse')
+        nom_tableau = self.config.get('bd', 'tableau')
+        index_col = self.config.get('bd', 'index', 'index')
+        tableau = BaseTableau(adresse, nom_tableau, index_col)
+        tableau.append(cadre)
