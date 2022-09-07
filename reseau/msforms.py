@@ -190,7 +190,7 @@ class MSFormExportBD(MSForm):
     def action(self, cadre: pd.DataFrame):
         adresse = self.config.get('bd', 'adresse')
         nom_tableau = self.config.get('bd', 'tableau')
-        index_col = self.config.get('bd', 'index', 'index')
+        index_col = self.config.get('bd', 'index')
         tableau = BaseTableau(adresse,
                               nom_tableau,
                               index_col,
