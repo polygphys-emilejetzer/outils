@@ -514,11 +514,6 @@ class BaseTableau:
         # Utile pour charger des formulaires qui pourraient changer
         # (eg ajout de champs)
         if à_partir_de is not None:
-            print(self.columns)
-            print(self.index)
-            if self.index_col not in self.columns:
-                self.alter(self.index_col, int)
-
             for champ, dtype in à_partir_de.dtypes.items():
                 if champ not in self.columns:
                     self.alter(champ, get_type('pandas', dtype, 'python'))
