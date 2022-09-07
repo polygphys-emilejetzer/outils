@@ -294,13 +294,12 @@ class BaseDeDonnées:
               champ: str,
               dtype: type = str,
               opération: str = 'add'):
-        instruction = sqla.text(
-            f'alter table :table {opération} :champ :dtype')
         dtype = str(get_type('python', dtype, 'sqlalchemy'))
+        instruction = sqla.text(
+            f'alter table {table} {opération} {champ} {dtype}')
 
         with self.begin() as connexion:
-            connexion.execute(instruction, table=table,
-                              champ=champ, dtype=dtype)
+            connexion.execute(instruction)
 
     # Interface de pandas.DataFrame
 
