@@ -288,6 +288,20 @@ class BaseDeDonnées:
             self.metadata.drop_all(con, checkfirst=checkfirst)
             self.metadata.create_all(con)
 
+    # Interface ajoutée, pour faciliter les migrations et modifications
+    def alter(self,
+              table: str,
+              champ: str,
+              dtype: type = str,
+              opération: str = 'add'):
+        instruction = sqla.text(
+            f'alter table :table {opération} :champ :dtype')
+        dtype = str(get_type('python', dtype, 'sqlalchemy'))
+
+        with self.begin() as connexion:
+            connexion.execute(instruction, table=table,
+                              champ=champ, dtype=dtype)
+
     # Interface de pandas.DataFrame
 
     def dtype(self, table: str, champ: str) -> str:
@@ -501,20 +515,15 @@ class BaseTableau:
         # Utile pour charger des formulaires qui pourraient changer
         # (eg ajout de champs)
         if à_partir_de is not None:
+            if self.index_col not in self.columns:
+                self.alter(self.index_col, int)
+
+            for champ, dtype in à_partir_de.dtypes.items():
+                if champ not in self.columns:
+                    self.alter(champ, get_type('pandas', dtype, 'python'))
+
             with self.db.begin() as connexion:
-                sqla.Table(self.nom_table,
-                           self.db.metadata,
-                           column(self.index_col,
-                                  int,
-                                  autoincrement=True,
-                                  primary_key=True),
-                           *[column(nom,
-                                    get_type('pandas',
-                                             dtype,
-                                             'python'))
-                             for nom, dtype in à_partir_de.dtypes.items()],
-                           extend_existing=True,
-                           autoload_with=connexion)
+                self.db.metadata.reflect(connexion)
 
     def __getattr__(self, attr: str) -> Any:
         """
