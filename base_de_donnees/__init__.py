@@ -514,6 +514,7 @@ class BaseTableau:
         # Utile pour charger des formulaires qui pourraient changer
         # (eg ajout de champs)
         if à_partir_de is not None:
+            print(self.columns)
             if self.index_col not in self.columns:
                 self.alter(self.index_col, int)
 
