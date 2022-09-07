@@ -514,7 +514,7 @@ class BaseTableau:
                                              'python'))
                              for nom, dtype in à_partir_de.dtypes.items()],
                            extend_existing=True,
-                           autoload_with=connexion).create(connexion)
+                           autoload_with=connexion)
 
     def __getattr__(self, attr: str) -> Any:
         """
