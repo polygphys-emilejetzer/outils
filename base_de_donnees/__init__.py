@@ -515,6 +515,7 @@ class BaseTableau:
         # (eg ajout de champs)
         if à_partir_de is not None:
             print(self.columns)
+            print(self.index)
             if self.index_col not in self.columns:
                 self.alter(self.index_col, int)
 
