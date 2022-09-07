@@ -12,6 +12,7 @@ from datetime import datetime as dt
 
 # Bibliothèque PIPy
 import pandas as pd
+import sqlalchemy as sqla
 
 # Imports relatifs
 from ..config import FichierConfig
@@ -189,5 +190,8 @@ class MSFormExportBD(MSForm):
         adresse = self.config.get('bd', 'adresse')
         nom_tableau = self.config.get('bd', 'tableau')
         index_col = self.config.get('bd', 'index', 'index')
-        tableau = BaseTableau(adresse, nom_tableau, index_col)
+        tableau = BaseTableau(adresse,
+                              nom_tableau,
+                              index_col,
+                              à_partir_de=cadre)
         tableau.append(cadre)

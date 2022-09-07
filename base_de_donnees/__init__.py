@@ -16,7 +16,7 @@ import pandas as pd  # Manipulations de données en Python
 # Imports relatifs
 # Conversion en types internes de différents modules
 from ..config import FichierConfig
-from .dtypes import get_type, default
+from .dtypes import get_type, default, column
 
 # Certains types de fichiers, pour deviner quelle fonction de lecture
 # utiliser quand on importe un fichier dans une base de données.
@@ -466,7 +466,11 @@ class BaseDeDonnées:
 class BaseTableau:
     """Encapsulation de la classe BaseDeDonnées."""
 
-    def __init__(self, db: BaseDeDonnées, table: str, index_col: str = 'index'):
+    def __init__(self,
+                 db: BaseDeDonnées,
+                 table: str,
+                 index_col: str = 'index',
+                 à_partir_de: pd.DataFrame = None):
         """
         Encapsule de la classe BaseDeDonnées.
 
@@ -483,13 +487,34 @@ class BaseTableau:
         self.nom_table: str = table
         self.index_col = index_col
 
+        # Obtenir la structure déjà présente du tableau
+        # Ou utiliser l'objet base de données transmis en argument.
         if isinstance(db, str):
             self.db: BaseDeDonnées = BaseDeDonnées(
                 db, sqla.MetaData(), index_col)
-            moteur = self.db.create_engine()
-            self.db.metadata.reflect(moteur)
+            with self.db.create_engine() as moteur:
+                self.db.metadata.reflect(moteur)
         else:
             self.db: BaseDeDonnées = db
+
+        # Forcer la présence de certaines colonnes à l'initialisation
+        # Utile pour charger des formulaires qui pourraient changer
+        # (eg ajout de champs)
+        if à_partir_de is not None:
+            with self.db.create_engine() as moteur:
+                sqla.Table(self.nom_table,
+                           self.db.metadata,
+                           column(self.index_col,
+                                  int,
+                                  autoincrement=True,
+                                  primary_key=True),
+                           *[column(nom,
+                                    get_type('pandas',
+                                             dtype,
+                                             'python'))
+                             for nom, dtype in à_partir_de.dtypes.items()],
+                           extend_existing=True,
+                           autoload_with=moteur).create(moteur)
 
     def __getattr__(self, attr: str) -> Any:
         """
@@ -516,7 +541,7 @@ class BaseTableau:
                         résultat = partial(obj, self.nom_table)()
                     elif 'table' in sig.parameters:
                         partielle = partial(obj, self.nom_table)
-                        
+
                         @wraps(partielle)
                         def résultat(*args, **kargs):
                             try:
@@ -524,7 +549,7 @@ class BaseTableau:
                                 res = partielle(*args, **kargs)
                             finally:
                                 self.db.index_col = vieux_index_col
-                            
+
                             return res
                     else:
                         résultat = obj
