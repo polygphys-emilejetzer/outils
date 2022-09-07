@@ -492,8 +492,8 @@ class BaseTableau:
         if isinstance(db, str):
             self.db: BaseDeDonnées = BaseDeDonnées(
                 db, sqla.MetaData(), index_col)
-            with self.db.create_engine() as moteur:
-                self.db.metadata.reflect(moteur)
+            with self.db.begin() as connexion:
+                self.db.metadata.reflect(connexion)
         else:
             self.db: BaseDeDonnées = db
 
@@ -501,7 +501,7 @@ class BaseTableau:
         # Utile pour charger des formulaires qui pourraient changer
         # (eg ajout de champs)
         if à_partir_de is not None:
-            with self.db.create_engine() as moteur:
+            with self.db.begin() as connexion:
                 sqla.Table(self.nom_table,
                            self.db.metadata,
                            column(self.index_col,
@@ -514,7 +514,7 @@ class BaseTableau:
                                              'python'))
                              for nom, dtype in à_partir_de.dtypes.items()],
                            extend_existing=True,
-                           autoload_with=moteur).create(moteur)
+                           autoload_with=connexion).create(connexion)
 
     def __getattr__(self, attr: str) -> Any:
         """
