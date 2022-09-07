@@ -136,6 +136,7 @@ class MSForm:
             DESCRIPTION.
 
         """
+        cadre = self.convertir_champs(cadre)
         return cadre
 
     def nouvelles_entrées(self) -> pd.DataFrame:
