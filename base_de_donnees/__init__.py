@@ -183,7 +183,7 @@ class BaseDeDonnées:
 
         """
         with self.begin() as con:
-            values.to_sql(table, con, if_exists='append')
+            values.to_sql(table, con, if_exists='append', index=False)
 
     def delete(self, table: str, values: pd.DataFrame):
         """
