@@ -149,8 +149,7 @@ class MSForm:
             DESCRIPTION.
 
         """
-        with open(self.fichier, 'r', encoding='utf-8') as f:
-            cadre = pd.read_excel(f, usecols=self.colonnes, engine='openpyxl')
+        cadre = pd.read_excel(str(self.fichier), usecols=self.colonnes)
 
         cadre = self.nettoyer(cadre)
         return cadre.loc[cadre.date >= pd.to_datetime(self.dernière_mise_à_jour)]
