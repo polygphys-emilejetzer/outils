@@ -17,7 +17,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 # Imports relatifs
-from .base_de_donnees import BaseTableau
+from .base_de_donnees import BaseTableau, BaseDeDonnées
 
 
 @dataclass
@@ -187,6 +187,21 @@ class Repository:
         run(['git', 'branch', b], cwd=self.path)
 
 
+class JournalBD(BaseTableau):
+
+    def __init__(self,
+                 db: BaseDeDonnées,
+                 table: str):
+        index_col = 'index'
+        à_partir_de = pd.DataFrame({'créé': [],
+                                    'niveau': [],
+                                    'logger': [],
+                                    'msg': [],
+                                    'head': []})
+
+        super().__init__(db, table, index_col, à_partir_de)
+
+
 class Journal(Handler):
     """Journal compatible avec le module logging.
 
@@ -198,7 +213,7 @@ class Journal(Handler):
     def __init__(self,
                  level: float,
                  dossier: Path,
-                 tableau: BaseTableau):
+                 tableau: JournalBD):
         """Journal compatible avec le module logging.
 
         Maintiens une base de données des changements apportés,
