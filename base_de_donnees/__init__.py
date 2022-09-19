@@ -258,7 +258,8 @@ class BaseDeDonnées:
 
         """
         moteur = self.create_engine()
-        Session = sqla.scoped_session(sqla.session_maker(bind=moteur))
+        Session = sqla.orm.scoping.scoped_session(
+            sqla.orm.session.session_maker(bind=moteur))
         session = Session()
         return session.begin()
 
