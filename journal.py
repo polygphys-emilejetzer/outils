@@ -186,6 +186,12 @@ class Repository:
         """
         run(['git', 'branch', b], cwd=self.path)
 
+    @property
+    def head(self):
+        head = run(['cat', '.git/HEAD']).split(':', 1)[1].strip()
+        commit = open(head, 'r').read().strip()
+        return commit
+
 
 class JournalBD(BaseTableau):
 
@@ -281,7 +287,7 @@ class Journal(Handler):
                                 'niveau': [record.levelno],
                                 'logger': [record.name],
                                 'msg': [msg],
-                                'head': [self.repo.head.commit.hexsha]})
+                                'head': [self.repo.head]})
 
         self.tableau.append(message)
 
