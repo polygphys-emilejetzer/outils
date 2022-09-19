@@ -188,8 +188,9 @@ class Repository:
 
     @property
     def head(self):
-        head = run(['cat', '.git/HEAD'], capture_output=True)\
-            .stdout\
+        head = str(run(['cat', '.git/HEAD'], capture_output=True)
+                   .stdout,
+                   encoding='utf-8')\
             .split(':', 1)[1]\
             .strip()
         commit = open(head, 'r').read().strip()
