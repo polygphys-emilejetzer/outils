@@ -261,9 +261,10 @@ class BaseDeDonnées:
 
         """
         moteur = self.create_engine()
-        Session = scoped_session(sessionmaker(bind=moteur))
-        session = Session()
-        return session.begin()
+        #Session = scoped_session(sessionmaker(bind=moteur))
+        #session = Session(moteur)
+        transaction = moteur.begin()  # session.begin()
+        return transaction
 
     def initialiser(self, checkfirst: bool = True):
         """
