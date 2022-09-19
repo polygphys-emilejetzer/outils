@@ -257,7 +257,10 @@ class BaseDeDonnées:
         :rtype: Connection SQLAlchemy
 
         """
-        return self.create_engine().begin()
+        moteur = self.create_engine()
+        Session = sqla.scoped_session(sqla.session_maker(bind=moteur))
+        session = Session()
+        return session.begin()
 
     def initialiser(self, checkfirst: bool = True):
         """
