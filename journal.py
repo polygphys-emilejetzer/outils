@@ -192,7 +192,9 @@ class Repository:
             .read()\
             .split(':', 1)[1]\
             .strip()
-        commit = Path(head).open('r', encoding='utf-8').read().strip()
+        commit = (Path('.git') / Path(head)).open('r', encoding='utf-8')\
+            .read()\
+            .strip()
         return commit
 
 
