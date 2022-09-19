@@ -261,7 +261,7 @@ class BaseDeDonnées:
 
         """
         moteur = self.create_engine()
-        Session = scoped_session(session_maker(bind=moteur))
+        Session = scoped_session(sessionmaker(bind=moteur))
         session = Session()
         return session.begin()
 
