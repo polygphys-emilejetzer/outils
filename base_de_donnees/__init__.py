@@ -13,6 +13,9 @@ from inspect import signature  # Utiliser les signatures de fonctions
 import sqlalchemy as sqla  # Fonctions et objets de bases de données
 import pandas as pd  # Manipulations de données en Python
 
+from sqlalchemy.orm.session import sessionmaker
+from sqlalchemy.orm.scoping import scoped_session
+
 # Imports relatifs
 # Conversion en types internes de différents modules
 from ..config import FichierConfig
@@ -258,8 +261,7 @@ class BaseDeDonnées:
 
         """
         moteur = self.create_engine()
-        Session = sqla.orm.scoping.scoped_session(
-            sqla.orm.session.session_maker(bind=moteur))
+        Session = scoped_session(session_maker(bind=moteur))
         session = Session()
         return session.begin()
 
