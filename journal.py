@@ -198,19 +198,29 @@ class Repository:
         return commit
 
 
-class JournalBD(BaseTableau):
+class JournalBD:
 
     def __init__(self,
-                 db: BaseDeDonnées,
+                 db: str,
                  table: str):
-        index_col = 'index'
-        à_partir_de = pd.DataFrame({'créé': [],
-                                    'niveau': [],
-                                    'logger': [],
-                                    'msg': [],
-                                    'head': []})
+        self._db = db
+        self._table = table
+        self._index_col = 'index'
+        self._à_partir_de = pd.DataFrame({'créé': [],
+                                         'niveau': [],
+                                          'logger': [],
+                                          'msg': [],
+                                          'head': []})
 
-        super().__init__(db, table, index_col, à_partir_de)
+    def __getattr__(self, attr):
+        # Ceci devrait faire en sorte que le module fonctionne
+        # avec différentes threads.
+        tableau = BaseTableau(self._db,
+                              self._table,
+                              self._index_col,
+                              self._à_partir_de)
+
+        return getattr(tableau, attr)
 
 
 class Journal(Handler):
@@ -246,7 +256,7 @@ class Journal(Handler):
 
         """
         self.repo: Repository = Repository(dossier)
-        self.tableau: BaseTableau = tableau
+        self.tableau: JournalBD = tableau
 
         super().__init__(level)
 
@@ -294,6 +304,6 @@ class Journal(Handler):
                                 'msg': [msg],
                                 'head': [self.repo.head]})
 
-        # self.tableau.append(message)
+        self.tableau.append(message)
 
 # TODO Modèle de base de données pour journal
