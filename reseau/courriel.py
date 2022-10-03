@@ -151,8 +151,6 @@ class Courriel:
         if clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             return self[clé]
-        elif clé == 'message':
-            raise AttributeError
         else:
             return getattr(self.message, clé)
 
@@ -164,8 +162,6 @@ class Courriel:
         elif clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             self[clé] = val
-        else:
-            setattr(self.message, clé, val)
 
     def joindre(self, *chemins):
         for chemin in chemins:
