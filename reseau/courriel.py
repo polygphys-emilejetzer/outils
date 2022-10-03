@@ -127,7 +127,6 @@ class Courriel:
                  html=None,
                  pièces_jointes=tuple(),
                  message: EmailMessage = None):
-        self.message = None
         if message:
             self.message = message
         else:
@@ -152,7 +151,7 @@ class Courriel:
         if clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             return self[clé]
-        elif hasattr(self.message, clé):
+        elif hasattr(EmailMessage, clé):
             return getattr(self.message, clé)
         else:
             return super().__getattr__(clé)
@@ -165,7 +164,7 @@ class Courriel:
         elif clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             self[clé] = val
-        elif hasattr(self.message, clé):
+        elif hasattr(EmailMessage, clé):
             setattr(self.message, clé, val)
         else:
             super().__setattr__(clé, val)
