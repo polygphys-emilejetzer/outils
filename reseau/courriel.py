@@ -359,7 +359,7 @@ class Messagerie:
             if isinstance(boîte, str):
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
 
-        nom = encode_imap4_utf7(boîte.nom)
+        nom, l = encode_imap4_utf7(boîte.nom)
         self.sélection = nom
 
     @property
