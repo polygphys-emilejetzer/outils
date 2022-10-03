@@ -257,7 +257,7 @@ class Messagerie:
         return Courriel(message)
 
     def messages(self) -> Courriel:
-        with self as serveur:
+        with self.connecter() as serveur:
             serveur.select()  # TODO: permettre de sélectionner d'autres boîtes
             typ, data = serveur.search(None, 'ALL')
             messages: list[str] = data[0].split()
@@ -283,7 +283,7 @@ class Messagerie:
                                          'chaine',
                                          'contenu'))
 
-    def __enter__(self):
+    def connecter(self):
         serveur = IMAP4_SSL(self.adresse)
         serveur.login(self.nom, self.mdp)
         serveur.enable('UTF-8=ACCEPT')
