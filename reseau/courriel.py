@@ -127,6 +127,7 @@ class Courriel:
                  html=None,
                  pièces_jointes=tuple(),
                  message: EmailMessage = None):
+        self.message = None
         if message:
             self.message = message
         else:
@@ -162,6 +163,8 @@ class Courriel:
         elif clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             self[clé] = val
+        else:
+            super().__setattr__(clé, val)
 
     def joindre(self, *chemins):
         for chemin in chemins:
