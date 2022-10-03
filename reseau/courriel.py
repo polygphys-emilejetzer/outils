@@ -158,8 +158,6 @@ class Courriel:
             return self[clé]
         elif hasattr(EmailMessage, clé):
             return getattr(self.message, clé)
-        else:
-            return super().__getattr__(clé)
 
     def __setattr__(self, clé: str, val: Any) -> Any:
         if clé == 'contenu':
