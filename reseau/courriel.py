@@ -193,7 +193,7 @@ class Courriel:
     def pièces_jointes(self):
         if self.is_multipart() and len(self.get_payload()) > 1:
             for pj in self.get_payload():
-                if pj['Content-Disposition'].startswith('attachment'):
+                if pj.get('Content-Disposition', '').startswith('attachment'):
                     nom = pj.get_filename()
                     content_type = pj.get_content_type()
                     contenu = pj.get_payload()
