@@ -329,6 +329,7 @@ class Messagerie:
 
     def messages(self) -> Courriel:
         with self.connecter() as serveur:
+            print(self.sélection)
             serveur.select(self.sélection)
             typ, data = serveur.search(None, 'ALL')
             messages: list[str] = data[0].split()
