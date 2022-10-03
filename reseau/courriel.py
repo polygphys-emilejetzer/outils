@@ -114,7 +114,7 @@ class CourrielsConfig(FichierConfig):
         return CONFIGURATION_PAR_DÉFAUT
 
 
-PièceJointe = namedtuple('PièceJointe', ['nom', 'Content-Type', 'contenu'])
+PièceJointe = namedtuple('PièceJointe', ['nom', 'type_MIME', 'contenu'])
 
 
 class Courriel:
