@@ -21,6 +21,7 @@ from functools import partial
 from datetime import datetime
 from imaplib import IMAP4_SSL
 from typing import Any
+from collections import namedtuple
 
 import getpass
 import quopri
@@ -283,6 +284,11 @@ Sujet: {self['Subject']}
             f.write(str(self))
 
 
+BoîteAuxLettres = namedtuple('BoîteAuxLettres', ['est_parent',
+                                                 'sep',
+                                                 'nom'])
+
+
 class Messagerie:
 
     def __init__(self, config: CourrielsConfig):
@@ -336,9 +342,12 @@ class Messagerie:
         with self.connecter() as serveur:
             état, boîtes = serveur.list()
 
-        boîtes = [decode_imap4_utf7(s) for s in
-                  (str(b, encoding='utf-7') for b in boîtes)]
-        return boîtes
+        yield from (BoîteAuxLettres(b.split(')', 1)[0].strip('('),
+                                    b.split(') "', 1)[1].split('" "', 1)[0],
+                                    b.split('" "', 1)[1].strip('"'))
+                    for b in
+                    (decode_imap4_utf7(s) for s in
+                     (str(b, encoding='utf-7') for b in boîtes)))
 
     @property
     def df(self) -> pandas.DataFrame:
