@@ -114,6 +114,9 @@ class CourrielsConfig(FichierConfig):
         return CONFIGURATION_PAR_DÉFAUT
 
 
+PièceJointe = namedtuple('PièceJointe', ['nom', 'Content-Type', 'contenu'])
+
+
 class Courriel:
     équivalences_attributs = {'destinataire': 'To',
                               'expéditeur': 'From',
@@ -186,8 +189,17 @@ class Courriel:
                                             subtype=type_mime[1],
                                             filename=chemin.name)
 
+    @property
+    def pièces_jointes(self):
+        if self.is_multipart() and len(self.get_payload()) > 1:
+            for pj in self.get_payload():
+                if pj['Content-Disposition'].startswith('attachment'):
+                    nom = pj.get_filename()
+                    content_type = pj.get_content_type()
+                    contenu = pj.get_payload()
+                    yield PièceJointe(nom, content_type, contenu)
+
     def envoyer(self, adresse, port=25):
-        self.construire()
         serveur = smtplib.SMTP(adresse, port)
         serveur.send_message(self.message)
         serveur.quit()
