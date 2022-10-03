@@ -120,11 +120,11 @@ class Courriel:
                               'objet': 'Subject'}
 
     def __init__(self,
-                 destinataire='',
-                 expéditeur='',
-                 objet='',
-                 contenu='',
-                 html='',
+                 destinataire=None,
+                 expéditeur=None,
+                 objet=None,
+                 contenu=None,
+                 html=None,
                  pièces_jointes=tuple(),
                  message: EmailMessage = None):
         if message:
@@ -132,14 +132,19 @@ class Courriel:
         else:
             self.message = EmailMessage()
 
-        self.destinataire = destinataire
-        self.expéditeur = expéditeur
-        self.objet = objet
-        self.contenu = contenu
-        self.html = html
+        if destinataire is not None:
+            self.destinataire = destinataire
+        if expéditeur is not None:
+            self.expéditeur = expéditeur
+        if objet is not None:
+            self.objet = objet
+        if contenu is not None:
+            self.contenu = contenu
+        if html is not None:
+            self.html = html
 
-        self.pièces_jointes = set()
-        self.joindre(*pièces_jointes)
+        if pièces_jointes:
+            self.joindre(*pièces_jointes)
 
     def __getitem__(self, clé: Any) -> Any:
         return self.message[clé]
