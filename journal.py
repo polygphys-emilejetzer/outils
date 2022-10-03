@@ -304,6 +304,6 @@ class Journal(Handler):
                                 'msg': [msg],
                                 'head': [self.repo.head]})
 
-        self.tableau.append(message)
+        # self.tableau.append(message)
 
 # TODO Modèle de base de données pour journal
