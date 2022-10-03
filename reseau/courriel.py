@@ -120,11 +120,11 @@ class Courriel:
                               'objet': 'Subject'}
 
     def __init__(self,
-                 destinataire=None,
-                 expéditeur=None,
-                 objet=None,
-                 contenu=None,
-                 html=None,
+                 destinataire='',
+                 expéditeur='',
+                 objet='',
+                 contenu='',
+                 html='',
                  pièces_jointes=tuple(),
                  message: EmailMessage = None):
         if message:
