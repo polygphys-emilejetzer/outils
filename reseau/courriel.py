@@ -335,11 +335,10 @@ class Messagerie:
         message = email.parser.BytesParser(policy=email.policy.default)\
             .parsebytes(bytes(data[0][1]))
 
-        return Courriel(message)
+        return Courriel(message=message)
 
     def messages(self) -> Courriel:
         with self.connecter() as serveur:
-            print(self.sélection)
             serveur.select(self.sélection)
             typ, data = serveur.search(None, 'ALL')
             messages: list[str] = data[0].split()
