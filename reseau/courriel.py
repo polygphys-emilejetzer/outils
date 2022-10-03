@@ -199,7 +199,7 @@ class Courriel:
         try:
             return dateutil.parser.parse(self['Date'], ignoretz=True)
         except TypeError:
-            return self['Date']
+            return datetime.fromtimestamp(0)
 
     @property
     def contenu(self):
