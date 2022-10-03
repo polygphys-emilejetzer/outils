@@ -298,6 +298,7 @@ class Messagerie:
             self.config = config
 
         self._mdp = None
+        self.sélection = 'INBOX'
 
     @property
     def adresse(self):
@@ -328,7 +329,7 @@ class Messagerie:
 
     def messages(self) -> Courriel:
         with self.connecter() as serveur:
-            serveur.select()  # TODO: permettre de sélectionner d'autres boîtes
+            serveur.select(self.sélection)
             typ, data = serveur.search(None, 'ALL')
             messages: list[str] = data[0].split()
             f = partial(self.message, serveur)
@@ -348,6 +349,10 @@ class Messagerie:
                     for b in
                     (decode_imap4_utf7(s) for s in
                      (str(b, encoding='utf-7') for b in boîtes)))
+
+    def select(self, boîte: BoîteAuxLettres):
+        nom = encode_imap4_utf7(boîte.nom)
+        self.sélection = nom
 
     @property
     def df(self) -> pandas.DataFrame:
