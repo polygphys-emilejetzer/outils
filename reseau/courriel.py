@@ -360,7 +360,7 @@ class Messagerie:
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
 
         nom, l = encode_imap4_utf7(boîte.nom)
-        self.sélection = nom
+        self.sélection = '"{}"'.format(nom)
 
     @property
     def df(self) -> pandas.DataFrame:
