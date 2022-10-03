@@ -351,11 +351,11 @@ class Messagerie:
                      (str(b, encoding='utf-7') for b in boîtes)))
 
     def select(self, boîte: BoîteAuxLettres):
-        if isinstance(boîte, 'str'):
+        if isinstance(boîte, str):
             for b in self.boîtes():
                 if b.nom == boîte:
                     boîte = b
-            if isinstance(boîte, 'str'):
+            if isinstance(boîte, str):
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
 
         nom = encode_imap4_utf7(boîte.nom)
