@@ -152,8 +152,10 @@ class Courriel:
         if clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             return self[clé]
-        else:
+        elif hasattr(self.message, clé):
             return getattr(self.message, clé)
+        else:
+            return super().__getattr__(clé)
 
     def __setattr__(self, clé: str, val: Any) -> Any:
         if clé == 'contenu':
@@ -163,6 +165,8 @@ class Courriel:
         elif clé in self.équivalences_attributs:
             clé = self.équivalences_attributs[clé]
             self[clé] = val
+        elif hasattr(self.message, clé):
+            setattr(self.message, clé, val)
         else:
             super().__setattr__(clé, val)
 
