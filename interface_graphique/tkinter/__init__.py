@@ -2,6 +2,8 @@
 """Interface graphique avec tkinter."""
 
 # Bibliothèque standard
+import datetime
+
 import tkinter as tk
 
 from tkinter import ttk
@@ -39,6 +41,16 @@ def tkHandler(master: tk.Tk, editable: bool = True) -> InterfaceHandler:
             val = conversion(value.iloc[0, 0])
         else:
             val = value.iloc[0, 0]
+
+        # Valeur par défaut
+        if val is None or not val:
+            if conversion is datetime.datetime\
+                    or conversion is datetime.date:
+                val = conversion.today()
+            elif conversion is datetime.time:
+                val = datetime.datetime.now().time()
+            else:
+                val = conversion()
 
         variable = get_type('pandas', dtype, 'tk')(master, val)
 
