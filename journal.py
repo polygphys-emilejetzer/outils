@@ -285,7 +285,7 @@ class Journal(Handler):
     def init(self):
         """Initialise le répertoire git et la base de données."""
         self.repo.init()
-        self.tableau.initialiser()
+        # self.tableau.initialiser()
 
     # Fonctions de logging.Handler
 
@@ -311,14 +311,18 @@ class Journal(Handler):
         """
         msg = record.getMessage()
 
-        self.repo.commit(msg, '-a')
-
         message = pd.DataFrame({'créé': [record.created],
                                 'niveau': [record.levelno],
                                 'logger': [record.name],
                                 'msg': [msg],
                                 'head': [self.repo.head]})
 
-        self.tableau.append(message)
+        # self.tableau.append(message)
+        csv = self.repo.path / 'résumé.csv'
+        csv.touch()
+        message.to_csv(csv, mode='a')
+        self.repo.add(str(csv))
+
+        self.repo.commit(msg, '-a')
 
 # TODO Modèle de base de données pour journal
