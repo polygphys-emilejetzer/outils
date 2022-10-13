@@ -239,7 +239,7 @@ class BaseDeDonnées:
         if not existe.all():
             self.insert(table, values.loc[~existe, :])
 
-    def create_engine(self) -> sqla.engine:
+    def create_engine(self, poolclass=NullPool) -> sqla.engine:
         """
         Créer le moteur de base de données.
 
@@ -247,7 +247,9 @@ class BaseDeDonnées:
         :rtype: sqlalchemy.engine
 
         """
-        return sqla.create_engine(str(self.adresse), future=True)
+        return sqla.create_engine(str(self.adresse),
+                                  future=True,
+                                  poolclass=poolclass)
 
     def begin(self):
         """
@@ -262,7 +264,7 @@ class BaseDeDonnées:
 
         """
         if not hasattr(self, 'moteur'):
-            self.moteur = self.create_engine(poolclass=NullPool)
+            self.moteur = self.create_engine()
         #Session = scoped_session(sessionmaker(bind=moteur))
         #session = Session(moteur)
         transaction = self.moteur.begin()  # session.begin()
