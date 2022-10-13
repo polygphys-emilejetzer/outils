@@ -15,6 +15,7 @@ import pandas as pd  # Manipulations de données en Python
 
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
+from sqlalchemy.pool import NullPool
 
 # Imports relatifs
 # Conversion en types internes de différents modules
@@ -261,7 +262,7 @@ class BaseDeDonnées:
 
         """
         if not hasattr(self, 'moteur'):
-            self.moteur = self.create_engine()
+            self.moteur = self.create_engine(poolclass=NullPool)
         #Session = scoped_session(sessionmaker(bind=moteur))
         #session = Session(moteur)
         transaction = self.moteur.begin()  # session.begin()

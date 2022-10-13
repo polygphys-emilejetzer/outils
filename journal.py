@@ -230,9 +230,6 @@ class JournalBD:
             @wraps(résultat)
             def f(*args, **kargs):
                 rés = résultat(*args, **kargs)
-                if hasattr(tableau, 'moteur'):
-                    tableau.moteur.dispose()
-                del tableau
                 return rés
 
             return f
