@@ -265,6 +265,7 @@ class BaseDeDonnées:
         """
         if not hasattr(self, 'moteur'):
             self.moteur = self.create_engine()
+        self.moteur.dispose(close=False)
         #Session = scoped_session(sessionmaker(bind=moteur))
         #session = Session(moteur)
         transaction = self.moteur.begin()  # session.begin()
