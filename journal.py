@@ -319,9 +319,14 @@ class Journal(Handler):
 
         # self.tableau.append(message)
         csv = Path(self.repo.path) / 'résumé.csv'
-        csv.touch()
-        message.to_csv(csv, mode='a')
-        self.repo.add(str(csv))
+        if csv.exists():
+            en_têtes = False
+        else:
+            en_têtes = True
+            csv.touch()
+
+        message.to_csv(csv, mode='a', header=en_têtes, index=False)
+        self.repo.add(csv.name)
 
         self.repo.commit(msg, '-a')
 
