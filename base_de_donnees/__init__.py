@@ -260,10 +260,11 @@ class BaseDeDonnées:
         :rtype: Connection SQLAlchemy
 
         """
-        moteur = self.create_engine()
+        if not hasattr(self, 'moteur'):
+            self.moteur = self.create_engine()
         #Session = scoped_session(sessionmaker(bind=moteur))
         #session = Session(moteur)
-        transaction = moteur.begin()  # session.begin()
+        transaction = self.moteur.begin()  # session.begin()
         return transaction
 
     def initialiser(self, checkfirst: bool = True):

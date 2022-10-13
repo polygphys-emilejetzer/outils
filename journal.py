@@ -217,6 +217,8 @@ class JournalBD:
     def __getattr__(self, attr):
         # Ceci devrait faire en sorte que le module fonctionne
         # avec différentes threads.
+        # NE FONCTIONNE PAS
+        # Voir engine.dispose()?
         tableau = BaseTableau(self._db,
                               self._table,
                               self._index_col,
@@ -228,6 +230,8 @@ class JournalBD:
             @wraps(résultat)
             def f(*args, **kargs):
                 rés = résultat(*args, **kargs)
+                if hasattr(tableau, 'moteur'):
+                    tableau.moteur.dispose()
                 del tableau
                 return rés
 
