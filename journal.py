@@ -12,6 +12,8 @@ from pathlib import Path
 from logging import Handler, LogRecord
 from subprocess import run
 from dataclasses import dataclass
+from functools import wraps
+from typing import Callable
 
 # Bibliothèque PIPy
 import pandas as pd
@@ -220,7 +222,19 @@ class JournalBD:
                               self._index_col,
                               self._à_partir_de)
 
-        return getattr(tableau, attr)
+        résultat = getattr(tableau, attr)
+        if isinstance(résultat, Callable):
+
+            @wraps(résultat)
+            def f(*args, **kargs):
+                rés = résultat(*args, **kargs)
+                del tableau
+                return rés
+
+            return f
+        else:
+            del tableau
+            return résultat
 
 
 class Journal(Handler):
@@ -304,6 +318,6 @@ class Journal(Handler):
                                 'msg': [msg],
                                 'head': [self.repo.head]})
 
-        # self.tableau.append(message)
+        self.tableau.append(message)
 
 # TODO Modèle de base de données pour journal
