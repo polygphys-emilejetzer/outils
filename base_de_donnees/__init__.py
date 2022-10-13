@@ -15,7 +15,7 @@ import pandas as pd  # Manipulations de données en Python
 
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import NullPool, QueuePool, SingletonThreadPool
 
 # Imports relatifs
 # Conversion en types internes de différents modules
@@ -239,7 +239,7 @@ class BaseDeDonnées:
         if not existe.all():
             self.insert(table, values.loc[~existe, :])
 
-    def create_engine(self, poolclass=NullPool) -> sqla.engine:
+    def create_engine(self, poolclass=SingletonThreadPool) -> sqla.engine:
         """
         Créer le moteur de base de données.
 
