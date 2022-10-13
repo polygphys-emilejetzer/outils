@@ -318,7 +318,7 @@ class Journal(Handler):
                                 'head': [self.repo.head]})
 
         # self.tableau.append(message)
-        csv = self.repo.path / 'résumé.csv'
+        csv = Path(self.repo.path) / 'résumé.csv'
         csv.touch()
         message.to_csv(csv, mode='a')
         self.repo.add(str(csv))
