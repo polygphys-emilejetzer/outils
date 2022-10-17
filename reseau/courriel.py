@@ -429,6 +429,10 @@ class CourrielsTableau(BaseTableau):
 
         tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
-        nouveaux_courriels = tous_courriels.drop_duplicates(keep=False)
+        nouveaux_courriels = tous_courriels.drop_duplicates(('date',
+                                                             'de',
+                                                             'a',
+                                                             'sujet'),
+                                                            keep=False)
 
         self.append(nouveaux_courriels)
