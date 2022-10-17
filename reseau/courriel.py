@@ -437,4 +437,4 @@ class CourrielsTableau(BaseTableau):
         print(tous_courriels.size, nouveaux_courriels.size)
         print(nouveaux_courriels)
 
-        self.append(nouveaux_courriels)
+        self.màj(nouveaux_courriels)
