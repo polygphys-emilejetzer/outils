@@ -434,5 +434,7 @@ class CourrielsTableau(BaseTableau):
                                                              'a',
                                                              'sujet'),
                                                             keep=False)
+        print(tous_courriels.size, nouveaux_courriels.size)
+        print(nouveaux_courriels)
 
         self.append(nouveaux_courriels)
