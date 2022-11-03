@@ -9,6 +9,7 @@ import logging
 import tkinter as tk
 
 from typing import Union, Any
+from functools import partial
 
 # Bibliothèque PIPy
 import sqlalchemy as sqla
@@ -23,7 +24,7 @@ import sqlalchemy as sqla
 TYPES: tuple[dict[str, Union[str, type]]] = (
     {  # Type générique
         'config': None,
-        'python': str,
+        'python': partial(bytes, encoding='utf-8'),
         'pandas': 'object',
         'sqlalchemy': sqla.PickleType(),
         'tk': tk.StringVar
