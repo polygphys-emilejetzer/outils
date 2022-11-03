@@ -426,6 +426,8 @@ class CourrielsTableau(BaseTableau):
             lambda x: x[:lim_db])
         nouveaux_courriels.chaine = nouveaux_courriels.chaine.map(
             lambda x: x[:lim_db])
+        nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
+            partial(bytes, encoding='utf-8'))
 
         tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
