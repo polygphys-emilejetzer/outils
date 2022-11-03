@@ -437,7 +437,7 @@ class CourrielsTableau(BaseTableau):
                                                              'a',
                                                              'sujet'),
                                                             keep=False)\
-            .fillna(None)
+            .fillna(value=None)
         print(tous_courriels.size, nouveaux_courriels.size)
         print(nouveaux_courriels)
 
