@@ -31,6 +31,8 @@ import schedule
 import pandas
 import keyring
 
+import numpy as np
+
 from polygphys.outils.config import FichierConfig
 from polygphys.outils.base_de_donnees import BaseTableau
 from polygphys.outils.reseau import DisqueRéseau
@@ -437,7 +439,7 @@ class CourrielsTableau(BaseTableau):
                                                              'a',
                                                              'sujet'),
                                                             keep=False)\
-            .fillna(value=None)
+            .replace({np.nan: None})
         print(tous_courriels.size, nouveaux_courriels.size)
         print(nouveaux_courriels)
 
