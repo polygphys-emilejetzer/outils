@@ -190,11 +190,11 @@ class Repository:
 
     @property
     def head(self):
-        head = (Path('.git') / 'head').open('r', encoding='utf-8')\
+        head = (Path(self.path) / '.git' / 'head').open('r', encoding='utf-8')\
             .read()\
             .split(':', 1)[1]\
             .strip()
-        commit = (Path('.git') / Path(head)).open('r', encoding='utf-8')\
+        commit = (Path(self.path) / '.git' / Path(head)).open('r', encoding='utf-8')\
             .read()\
             .strip()
         return commit
