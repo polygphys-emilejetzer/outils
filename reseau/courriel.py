@@ -39,11 +39,11 @@ from polygphys.outils.reseau import DisqueRéseau
 
 CONFIGURATION_PAR_DÉFAUT: str = '''
 [messagerie]
-adresse = 
-nom = 
+adresse =
+nom =
 
 [db]
-adresse = 
+adresse =
 '''
 
 # https://stackoverflow.com/questions/73941386/escaped-characters-of-form-aok-for-%c3%a9-in-imap4-list-response-using-imap4-s/73941387#73941387
@@ -285,7 +285,7 @@ class Courriel:
         return self.parent / self.name
 
     def __str__(self):
-        return f'''- - - 
+        return f'''- - -
 Date: {self.date.isoformat()}
 De: {self['From']}
 À: {self['To']}
@@ -353,7 +353,7 @@ class Messagerie:
         if not recherche:
             recherche = ('ALL',)
         with self.connecter() as serveur:
-            serveur.select(self.sélection)
+            serveur.select(encode_imap4_utf7(self.sélection))
             typ, data = serveur.search('UTF-8', *recherche)
             messages: list[str] = data[0].split()
             f = partial(self.message, serveur)
@@ -369,7 +369,8 @@ class Messagerie:
 
         yield from (BoîteAuxLettres(b.split(')', 1)[0].strip('('),
                                     b.split(') "', 1)[1].split('" "', 1)[0],
-                                    b.split('" "', 1)[1].strip('"'))
+                                    decode_imap4_utf7(
+                                        b.split('" "', 1)[1].strip('"'))
                     for b in
                     (decode_imap4_utf7(s) for s in
                      (str(b, encoding='utf-7') for b in boîtes)))
@@ -378,14 +379,14 @@ class Messagerie:
         if isinstance(boîte, str):
             for b in self.boîtes():
                 if b.nom == boîte:
-                    boîte = b
+                    boîte=b
             if isinstance(boîte, str):
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
 
-        nom, l = encode_imap4_utf7(boîte.nom)
-        self.sélection = '"{}"'.format(nom)
+        nom, l=encode_imap4_utf7(boîte.nom)
+        self.sélection='"{}"'.format(nom)
 
-    @property
+    @ property
     def df(self) -> pandas.DataFrame:
         return pandas.DataFrame([[c.date,
                                   c['Subject'],
@@ -401,7 +402,7 @@ class Messagerie:
                                          'contenu'))
 
     def connecter(self):
-        serveur = IMAP4_SSL(self.adresse)
+        serveur=IMAP4_SSL(self.adresse)
         serveur.login(self.nom, self.mdp)
         serveur.enable('UTF-8=ACCEPT')
         return serveur
@@ -411,37 +412,37 @@ class CourrielsTableau(BaseTableau):
 
     def __init__(self, config: CourrielsConfig):
         if isinstance(config, (str, Path)):
-            self.config = CourrielsConfig(config)
+            self.config=CourrielsConfig(config)
         else:
-            self.config = config
+            self.config=config
 
-        db = self.config.get('db', 'adresse')
-        table = 'courriels'
+        db=self.config.get('db', 'adresse')
+        table='courriels'
 
         super().__init__(db, table)
 
     def ajouter_messagerie(self, messagerie: Messagerie):
-        courriels_actuels = self.df
-        nouveaux_courriels = messagerie.df.fillna('')
+        courriels_actuels=self.df
+        nouveaux_courriels=messagerie.df.fillna('')
 
-        lim_db = 1000
-        nouveaux_courriels.a = nouveaux_courriels.a.map(
+        lim_db=1000
+        nouveaux_courriels.a=nouveaux_courriels.a.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.sujet = nouveaux_courriels.sujet.map(
+        nouveaux_courriels.sujet=nouveaux_courriels.sujet.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.chaine = nouveaux_courriels.chaine.map(
+        nouveaux_courriels.chaine=nouveaux_courriels.chaine.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
+        nouveaux_courriels.contenu=nouveaux_courriels.contenu.map(
             partial(bytes, encoding='utf-8'))
 
-        tous_courriels = pandas.concat([courriels_actuels,
+        tous_courriels=pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
         print(tous_courriels)
-        nouveaux_courriels = tous_courriels.drop_duplicates(('date',
+        nouveaux_courriels=tous_courriels.drop_duplicates(('date',
                                                              'de',
                                                              'a',
                                                              'sujet'),
-                                                            keep=False)\
+                                                            keep=False)
             .replace({np.nan: None})
         print(tous_courriels.size, nouveaux_courriels.size)
         print(nouveaux_courriels)
