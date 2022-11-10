@@ -370,7 +370,7 @@ class Messagerie:
         yield from (BoîteAuxLettres(b.split(')', 1)[0].strip('('),
                                     b.split(') "', 1)[1].split('" "', 1)[0],
                                     decode_imap4_utf7(
-                                        b.split('" "', 1)[1].strip('"'))
+                                        b.split('" "', 1)[1].strip('"')))
                     for b in
                     (decode_imap4_utf7(s) for s in
                      (str(b, encoding='utf-7') for b in boîtes)))
@@ -379,12 +379,12 @@ class Messagerie:
         if isinstance(boîte, str):
             for b in self.boîtes():
                 if b.nom == boîte:
-                    boîte=b
+                    boîte = b
             if isinstance(boîte, str):
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
 
-        nom, l=encode_imap4_utf7(boîte.nom)
-        self.sélection='"{}"'.format(nom)
+        nom, l = encode_imap4_utf7(boîte.nom)
+        self.sélection = '"{}"'.format(nom)
 
     @ property
     def df(self) -> pandas.DataFrame:
@@ -402,7 +402,7 @@ class Messagerie:
                                          'contenu'))
 
     def connecter(self):
-        serveur=IMAP4_SSL(self.adresse)
+        serveur = IMAP4_SSL(self.adresse)
         serveur.login(self.nom, self.mdp)
         serveur.enable('UTF-8=ACCEPT')
         return serveur
@@ -412,38 +412,38 @@ class CourrielsTableau(BaseTableau):
 
     def __init__(self, config: CourrielsConfig):
         if isinstance(config, (str, Path)):
-            self.config=CourrielsConfig(config)
+            self.config = CourrielsConfig(config)
         else:
-            self.config=config
+            self.config = config
 
-        db=self.config.get('db', 'adresse')
-        table='courriels'
+        db = self.config.get('db', 'adresse')
+        table = 'courriels'
 
         super().__init__(db, table)
 
     def ajouter_messagerie(self, messagerie: Messagerie):
-        courriels_actuels=self.df
-        nouveaux_courriels=messagerie.df.fillna('')
+        courriels_actuels = self.df
+        nouveaux_courriels = messagerie.df.fillna('')
 
-        lim_db=1000
-        nouveaux_courriels.a=nouveaux_courriels.a.map(
+        lim_db = 1000
+        nouveaux_courriels.a = nouveaux_courriels.a.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.sujet=nouveaux_courriels.sujet.map(
+        nouveaux_courriels.sujet = nouveaux_courriels.sujet.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.chaine=nouveaux_courriels.chaine.map(
+        nouveaux_courriels.chaine = nouveaux_courriels.chaine.map(
             lambda x: x[:lim_db])
-        nouveaux_courriels.contenu=nouveaux_courriels.contenu.map(
+        nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
             partial(bytes, encoding='utf-8'))
 
-        tous_courriels=pandas.concat([courriels_actuels,
+        tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
         print(tous_courriels)
-        nouveaux_courriels=tous_courriels.drop_duplicates(('date',
+        nouveaux_courriels = tous_courriels.drop_duplicates(('date',
                                                              'de',
-                                                             'a',
+                                                            'a',
                                                              'sujet'),
                                                             keep=False)
-            .replace({np.nan: None})
+        .replace({np.nan: None})
         print(tous_courriels.size, nouveaux_courriels.size)
         print(nouveaux_courriels)
 
