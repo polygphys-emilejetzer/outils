@@ -353,8 +353,8 @@ class Messagerie:
         if not recherche:
             recherche = ('ALL',)
         with self.connecter() as serveur:
-            serveur.select(encode_imap4_utf7(self.sélection))
-            typ, data = serveur.search('UTF-8', *recherche)
+            serveur.select(self.sélection)
+            typ, data = serveur.search(None, *recherche)
             messages: list[str] = data[0].split()
             f = partial(self.message, serveur)
 
