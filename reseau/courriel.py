@@ -349,10 +349,12 @@ class Messagerie:
 
         return Courriel(message=message)
 
-    def messages(self) -> Courriel:
+    def messages(self, *recherche) -> Courriel:
+        if not recherche:
+            recherche = ('ALL',)
         with self.connecter() as serveur:
             serveur.select(self.sélection)
-            typ, data = serveur.search(None, 'ALL')
+            typ, data = serveur.search('UTF-8', *recherche)
             messages: list[str] = data[0].split()
             f = partial(self.message, serveur)
 
@@ -375,7 +377,7 @@ class Messagerie:
     def select(self, boîte: BoîteAuxLettres):
         if isinstance(boîte, str):
             for b in self.boîtes():
-                if b.nom == boîte:
+                if b.nom == encode_imap4_utf7(boîte):
                     boîte = b
             if isinstance(boîte, str):
                 raise ValueError('Cette boîte aux lettres n\'existe pas.')
