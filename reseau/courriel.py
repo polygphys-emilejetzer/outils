@@ -209,7 +209,10 @@ class Courriel:
 
     @property
     def date(self) -> datetime:
-        return dateutil.parser.parse(self['Date'], ignoretz=True)
+        if isinstance(self['Date'], str):
+            return dateutil.parser.parse(self['Date'], ignoretz=True)
+        else:
+            return None
 
     @property
     def contenu(self):
