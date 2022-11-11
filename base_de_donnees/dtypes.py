@@ -24,7 +24,7 @@ import sqlalchemy as sqla
 TYPES: tuple[dict[str, Union[str, type]]] = (
     {  # Type générique
         'config': None,
-        'python': partial(bytes, encoding='utf-8'),
+        'python': lambda x='': bytes(x, encoding='utf-8'),
         'pandas': 'object',
         'sqlalchemy': sqla.PickleType(),
         'tk': tk.StringVar
@@ -134,8 +134,6 @@ def default(dtype: str) -> Any:
         return datetime.timedelta(0)
     elif 'date' in dtype or 'time' in dtype:
         return datetime.datetime.now()
-    elif 'object' in dtype:
-        return get_type('pandas', dtype, 'python')('')
     else:
         return get_type('pandas', dtype, 'python')()
 
