@@ -134,6 +134,8 @@ def default(dtype: str) -> Any:
         return datetime.timedelta(0)
     elif 'date' in dtype or 'time' in dtype:
         return datetime.datetime.now()
+    elif 'object' in dtype:
+        return get_type('pandas', dtype, 'python')('')
     else:
         return get_type('pandas', dtype, 'python')()
 
