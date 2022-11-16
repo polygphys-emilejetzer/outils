@@ -7,6 +7,7 @@ formulaires.
 """
 
 # Bibliothèque standard
+import pathlib
 
 from datetime import datetime as dt
 
@@ -180,7 +181,9 @@ class MSForm:
 
         """
         cadre = self.nouvelles_entrées()
-        self.config.set('màj', 'dernière', dt.now().isoformat())
+        dernière_modif = dt.fromtimestamp(pathlib.Path(
+            self.fichier).stat().st_mtime).isoformat()
+        self.config.set('màj', 'dernière', dernière_modif)
         self.action(cadre)
 
 
