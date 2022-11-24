@@ -203,7 +203,9 @@ class Courriel:
                     content_type = pj.get_content_type()
                     if nom is None:
                         continue
-                    print(nom, content_type, pj.get_charset())
+                    #print(nom, content_type, pj.get_charset())
+                    # De temps en temps il y a une erreur ici,
+                    # Je ne sais pas pourquoi.
                     pj.set_charset('utf-8')
                     contenu = pj.get_payload(decode=True)
                     yield PièceJointe(nom, content_type, contenu)
