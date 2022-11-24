@@ -273,6 +273,7 @@ class Courriel:
 
     @property
     def parent(self) -> Path:
+        print(self['Subject'], self.name)
         nom = self.message.get('Thread-Topic', self.name[:-3])
         nom = self.nettoyer_nom(nom)
 
