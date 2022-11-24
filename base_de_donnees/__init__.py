@@ -159,7 +159,7 @@ class BaseDeDonnées:
                                            .values(rangée)
                 try:
                     con.execute(requête)
-                except StatementError:
+                except sqla.StatementError:
                     print(index, rangée)
                     raise
 
