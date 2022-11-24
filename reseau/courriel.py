@@ -131,7 +131,8 @@ class Courriel:
                  contenu=None,
                  html=None,
                  pièces_jointes=tuple(),
-                 message: EmailMessage = None):
+                 message: EmailMessage = None,
+                 boîte=None):
         if message:
             self.message = message
         else:
@@ -147,6 +148,8 @@ class Courriel:
             self.contenu = contenu
         if html is not None:
             self.html = html
+
+        self.boîte = boîte
 
         if pièces_jointes:
             self.joindre(*pièces_jointes)
@@ -324,6 +327,7 @@ class Messagerie:
 
         self._mdp = None
         self.sélection = 'INBOX'
+        self.boîte = 'INBOX'
 
     @property
     def adresse(self):
@@ -350,7 +354,7 @@ class Messagerie:
         message = email.parser.BytesParser(policy=email.policy.default)\
             .parsebytes(bytes(data[0][1]))
 
-        return Courriel(message=message)
+        return Courriel(message=message, boîte=self.boîte)
 
     def messages(self, *recherche) -> Courriel:
         if not recherche:
@@ -388,6 +392,7 @@ class Messagerie:
 
         nom, l = encode_imap4_utf7(boîte.nom)
         self.sélection = '"{}"'.format(nom)
+        self.boîte = boîte
 
     @ property
     def df(self) -> pandas.DataFrame:
@@ -396,13 +401,15 @@ class Messagerie:
                                   c['From'],
                                   c['To'],
                                   c.parent.name,
-                                  c.contenu] for c in self],
+                                  c.contenu,
+                                  c.boîte] for c in self],
                                 columns=('date',
                                          'sujet',
                                          'de',
                                          'a',
                                          'chaine',
-                                         'contenu'))
+                                         'contenu',
+                                         'dossier'))
 
     def connecter(self):
         serveur = IMAP4_SSL(self.adresse)
