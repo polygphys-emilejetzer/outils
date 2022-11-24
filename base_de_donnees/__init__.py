@@ -157,7 +157,11 @@ class BaseDeDonnées:
                 requête = self.table(table).update()\
                                            .where(index == self.table(table).columns[self.index_col])\
                                            .values(rangée)
-                con.execute(requête)
+                try:
+                    con.execute(requête)
+                except StatementError:
+                    print(index, rangée)
+                    raise
 
     def insert(self, table: str, values: pd.DataFrame):
         """

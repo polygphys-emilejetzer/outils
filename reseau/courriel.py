@@ -405,7 +405,7 @@ class Messagerie:
                                   c['To'],
                                   c.parent.name,
                                   c.contenu,
-                                  c.boîte] for c in self],
+                                  c.boîte.nom] for c in self],
                                 columns=('date',
                                          'sujet',
                                          'de',
