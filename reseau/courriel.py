@@ -316,8 +316,9 @@ Sujet: {self['Subject']}
 
         if pièces_jointes == True:
             for pj in self.pièces_jointes:
-                with (chemin.parent / pj.nom).open('wb') as f:
-                    f.write(pj.contenu)
+                if pj.nom is not None:
+                    with (chemin.parent / pj.nom).open('wb') as f:
+                        f.write(pj.contenu)
 
 
 BoîteAuxLettres = namedtuple('BoîteAuxLettres', ['est_parent',
