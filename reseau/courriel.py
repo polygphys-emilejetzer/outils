@@ -262,7 +262,10 @@ class Courriel:
 
     @property
     def name(self) -> str:
-        sujet: str = self['Subject']\
+        sujet = self['Subject']
+        if sujet is None:
+            sujet = 'Sujet vide'
+        sujet: str = sujet\
             .encode('ascii', 'ignore')\
             .decode('utf-8')\
             .strip()
@@ -274,6 +277,7 @@ class Courriel:
     @property
     def parent(self) -> Path:
         print(self['Subject'], self.name)
+
         nom = self.message.get('Thread-Topic', self.name[:-3])
         nom = self.nettoyer_nom(nom)
 
