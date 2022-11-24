@@ -201,7 +201,7 @@ class Courriel:
                 if pj.get('Content-Disposition', '').startswith('attachment'):
                     nom = pj.get_filename()
                     content_type = pj.get_content_type()
-                    print(pj)
+                    print(pj.nom, pj.get_charset())
                     pj.set_charset('utf-8')
                     contenu = pj.get_payload(decode=True)
                     yield PièceJointe(nom, content_type, contenu)
