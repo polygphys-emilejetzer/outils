@@ -303,7 +303,7 @@ Sujet: {self['Subject']}
 {self.contenu}
 '''
 
-    def sauver(self, dossier: Path):
+    def sauver(self, dossier: Path, pièces_jointes: bool = True):
         chemin = dossier / self.path
 
         if not chemin.parent.exists():
@@ -313,6 +313,11 @@ Sujet: {self['Subject']}
 
         with chemin.open('w', encoding='utf-8') as f:
             f.write(str(self))
+
+        if pièces_jointes == True:
+            for pj in self.pièces_jointes:
+                with (chemin.parent / pj.nom).open('wb') as f:
+                    f.write(pj.contenu)
 
 
 BoîteAuxLettres = namedtuple('BoîteAuxLettres', ['est_parent',
@@ -414,6 +419,22 @@ class Messagerie:
                                          'contenu',
                                          'dossier'))
 
+    def df_filtré(self, *critères) -> pandas.DataFrame:
+        return pandas.DataFrame([[c.date,
+                                  c['Subject'],
+                                  c['From'],
+                                  c['To'],
+                                  c.parent.name,
+                                  c.contenu,
+                                  c.boîte.nom] for c in self.messages(*critères)],
+                                columns=('date',
+                                         'sujet',
+                                         'de',
+                                         'a',
+                                         'chaine',
+                                         'contenu',
+                                         'dossier'))
+
     def connecter(self):
         serveur = IMAP4_SSL(self.adresse)
         serveur.login(self.nom, self.mdp)
@@ -434,9 +455,9 @@ class CourrielsTableau(BaseTableau):
 
         super().__init__(db, table)
 
-    def ajouter_messagerie(self, messagerie: Messagerie):
+    def ajouter_messagerie(self, messagerie: Messagerie, *critères):
         courriels_actuels = self.df
-        nouveaux_courriels = messagerie.df.fillna('')
+        nouveaux_courriels = messagerie.df_filtré(*critères).fillna('')
 
         lim_db = 1000
         nouveaux_courriels.a = nouveaux_courriels.a.map(
