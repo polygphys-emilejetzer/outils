@@ -205,7 +205,7 @@ class Courriel:
                         continue
                     elif isinstance(nom, bytes):
                         nom = str(nom, encoding='utf-8')
-                    #print(nom, content_type, pj.get_charset())
+                    # print(nom, content_type, pj.get_charset())
                     # De temps en temps il y a une erreur ici,
                     # Je ne sais pas pourquoi.
                     pj.set_charset('utf-8')
@@ -480,8 +480,8 @@ class CourrielsTableau(BaseTableau):
             lambda x: x[:lim_db])
         nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
             partial(bytes, encoding='utf-8'))
-        nouveaux_courriels.date = nouveaux_courriels.date.replace(
-            None, datetime(1970, 1, 1))
+        nouveaux_courriels.loc[nouveaux_courriels.date ==
+                               None, 'date'] = datetime(1970, 1, 1)
 
         tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
@@ -490,7 +490,7 @@ class CourrielsTableau(BaseTableau):
                                                              'de',
                                                             'a',
                                                              'sujet'),
-                                                            keep=False)\
-            .replace({np.nan: None})
+                                                            keep=False)
+        .replace({np.nan: None})
 
         self.màj(nouveaux_courriels)
