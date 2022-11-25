@@ -306,8 +306,9 @@ class Courriel:
         return self.parent / self.name
 
     def __str__(self):
+        date = self.date if self.date is not None else datetime(1970, 1, 1)
         return f'''- - -
-Date: {self.date.isoformat()}
+Date: {date.isoformat()}
 De: {self['From']}
 À: {self['To']}
 Sujet: {self['Subject']}
