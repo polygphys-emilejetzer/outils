@@ -227,6 +227,7 @@ class Courriel:
     @property
     def contenu(self):
         contenu = self.message.get_body(('plain', 'html', 'related'))
+        charset = contenu.get_charset()
 
         if contenu is None:
             contenu = f'{contenu!r}'
@@ -239,6 +240,8 @@ class Courriel:
             encodings = ('utf-8',
                          'cp1252',
                          chardet.detect(contenu)['encoding'])
+            if charset is not None:
+                encodings = (charset,) + encodings
             for encoding in encodings:
                 try:
                     contenu = contenu.decode(encoding)
