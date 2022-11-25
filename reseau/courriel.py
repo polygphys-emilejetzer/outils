@@ -210,6 +210,8 @@ class Courriel:
                     # Je ne sais pas pourquoi.
                     pj.set_charset('utf-8')
                     contenu = pj.get_payload(decode=True)
+                    if contenu is None:
+                        continue
                     yield PièceJointe(nom, content_type, contenu)
 
     def envoyer(self, adresse, port=25):
