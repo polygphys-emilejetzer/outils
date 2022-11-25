@@ -481,7 +481,7 @@ class CourrielsTableau(BaseTableau):
         nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
             partial(bytes, encoding='utf-8'))
         nouveaux_courriels.date = nouveaux_courriels.date.replace(
-            None, datetime(0, 0, 0))
+            None, datetime(1970, 1, 1))
 
         tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
