@@ -224,7 +224,7 @@ class Courriel:
         if isinstance(self['Date'], str):
             return dateutil.parser.parse(self['Date'], ignoretz=True)
         else:
-            return datetime(0, 0, 0)
+            return None
 
     @property
     def contenu(self):
@@ -480,6 +480,8 @@ class CourrielsTableau(BaseTableau):
             lambda x: x[:lim_db])
         nouveaux_courriels.contenu = nouveaux_courriels.contenu.map(
             partial(bytes, encoding='utf-8'))
+        nouveaux_courriels.date = nouveaux_courriels.date.replace(
+            None, datetime(0, 0, 0))
 
         tous_courriels = pandas.concat([courriels_actuels,
                                         nouveaux_courriels])
