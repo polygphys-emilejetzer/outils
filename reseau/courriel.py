@@ -203,6 +203,8 @@ class Courriel:
                     content_type = pj.get_content_type()
                     if nom is None:
                         continue
+                    elif isinstance(nom, bytes):
+                        nom = str(nom, encoding='utf-8')
                     #print(nom, content_type, pj.get_charset())
                     # De temps en temps il y a une erreur ici,
                     # Je ne sais pas pourquoi.
@@ -321,9 +323,8 @@ Sujet: {self['Subject']}
 
         if pièces_jointes == True:
             for pj in self.pièces_jointes:
-                if pj.nom is not None:
-                    with (chemin.parent / pj.nom).open('wb') as f:
-                        f.write(pj.contenu)
+                with (chemin.parent / pj.nom).open('wb') as f:
+                    f.write(pj.contenu)
 
 
 BoîteAuxLettres = namedtuple('BoîteAuxLettres', ['est_parent',
