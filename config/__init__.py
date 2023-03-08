@@ -7,6 +7,7 @@ synchronisé quand des modifications y sont faites dans le programme.
 """
 
 # Bibliothèque standard
+import platformdirs
 from io import StringIO  # Pour FichierConfig.__str__
 from pathlib import Path  # Manipulation de chemins
 # Pour parsage d'urls, utilisé dans FichierConfig.__init__
@@ -28,6 +29,9 @@ class FichierConfig(ConfigParser):
                  dict_type: type = _default_dict,
                  allow_no_value: bool = False,
                  *,
+                 emplacement_système: bool = False,
+                 platformdirs_func=platformdirs.user_config_dir,
+                 platformdirs_args={},
                  fichier_defaut: Path = Path(__file__).parent / 'default.cfg',
                  delimiters: tuple[str] = ('=', ':'),
                  comment_prefixes: tuple[str] = ('#', ';'),
@@ -101,7 +105,14 @@ class FichierConfig(ConfigParser):
         # Principale différence avec ConfigParser:
         # l'attribut chemin réfère au fichier de configuration
         # lu et écrit dans le programme.
-        self.chemin: Path = Path(chemin)
+        chemin = Path(chemin)
+        if emplacement_système and not chemin.is_absolute():
+            if isinstance(platformdirs_func, str):
+                platformdirs_func = getattr(platformdirs, platformdirs_func)
+            racine = platformdirs_func(**platformdirs_args)
+            self.chemin = racine / chemin
+        else:
+            self.chemin: Path = Path(chemin)
 
         # Si le fichier n'existe pas, il est créé,
         # et on lui donne la valeur par défaut,
