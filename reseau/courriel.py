@@ -312,6 +312,10 @@ Date: {date.isoformat()}
 De: {self['From']}
 À: {self['To']}
 Sujet: {self['Subject']}
+aliases:
+    - "{self['Subject']}"
+tags: courriel
+- - -
 
 {self.contenu}
 '''
