@@ -303,7 +303,8 @@ def exe(root,
         stop_var,
         min_freq_var,
         max_freq_var,
-        dessiner_a_chaque_var):
+        dessiner_a_chaque_var,
+        moy_var):
     """
     Prendre une série de mesures.
 
@@ -388,6 +389,7 @@ def exe(root,
 {freqs=}
 {vb=}
 {delai=}
+{moy_var=}
 {nom_ressource=}'''
         print(msg, file=F)
         logging.info(msg)
@@ -423,7 +425,7 @@ def exe(root,
                 root.update()
                 time.sleep(delai)
                 if res.data_status_A == 'N' or res.value_A < 0:
-                    res = mesure_moyenne(hp4274a, 'A2', 10, delai=delai)
+                    res = mesure_moyenne(hp4274a, 'A2', moy_var.get(), delai=delai)
                     df.loc[v, f] = res
                     res_var.set(res)
 
@@ -615,7 +617,8 @@ def main():
                                                 stop_var=stop_var,
                                                 min_freq_var=min_freq_var,
                                                 max_freq_var=max_freq_var,
-                                                dessiner_a_chaque_var=dessiner_a_chaque_var))
+                                                dessiner_a_chaque_var=dessiner_a_chaque_var,
+                                                moy_var=moy_var))
     exe1_bouton = ttk.Button(root,
                              text='1 mesure',
                              command=lambda: exe1(root=root,
@@ -704,6 +707,9 @@ def main():
     res_var = tk.StringVar(root)
     res_entry = ttk.Entry(root, textvariable=res_var, state=tk.DISABLED)
     res_label = ttk.Label(root, text='Mesure (F)')
+    moy_var = tk.IntVar(root, value=10)
+    moy_entry = ttk.Spinbox(root, textvariable=moy_var, increment=1)
+    moy_label = ttk.Label(root, text='Nombre de mesures par point (moyenne)')
     
     # Paramètres de graphique
     valeurs = ('Dessiner à chaque point',
@@ -744,20 +750,22 @@ def main():
     delai_entry.grid(row=9, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
     nbr_label.grid(row=10, column=0, sticky=tk.E, padx=pad, pady=pad)
     nbr_entry.grid(row=10, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    res_label.grid(row=11, column=0, sticky=tk.E, padx=pad, pady=pad)
-    res_entry.grid(row=11, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    moy_label.grid(row=11, column=0, sticky=tk.E+tk.W, padx=pad, pady=pad)
+    moy_entry.grid(row=11, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
+    res_label.grid(row=12, column=0, sticky=tk.E, padx=pad, pady=pad)
+    res_entry.grid(row=12, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
     
-    dessiner_a_chaque_ctl.grid(row=12, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
+    dessiner_a_chaque_ctl.grid(row=13, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
     
-    exe_bouton.grid(row=13, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    exe1_bouton.grid(row=13, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    stop_bouton.grid(row=14, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    progres.grid(row=15, column=0, columnspan=2,
+    exe_bouton.grid(row=14, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    exe1_bouton.grid(row=14, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    stop_bouton.grid(row=15, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    progres.grid(row=16, column=0, columnspan=2,
                  sticky=tk.E + tk.W, padx=pad, pady=pad)
     canvas.get_tk_widget().grid(row=0, column=2,
-                                rowspan=15,
+                                rowspan=16,
                                 padx=pad, pady=pad)
-    barre.grid(row=15, column=2, padx=pad, pady=pad)
+    barre.grid(row=16, column=2, padx=pad, pady=pad)
 
     root.mainloop()
     logging.shutdown()
