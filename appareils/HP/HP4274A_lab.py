@@ -413,9 +413,9 @@ def exe(root,
 
             # Balayage en potentiel
             for v in vb:
-                dessiner_a_chaque_point = dessiner_a_chaque.get() == 'Dessiner à chaque point'
-                dessiner_a_chaque_courbe = dessiner_a_chaque.get() == 'Dessiner à chaque courbe'
-                dessiner_a_la_fin = dessiner_a_chaque.get() == 'Dessiner à la fin'
+                dessiner_a_chaque_point = dessiner_a_chaque_var.get() == 'Dessiner à chaque point'
+                dessiner_a_chaque_courbe = dessiner_a_chaque_var.get() == 'Dessiner à chaque courbe'
+                dessiner_a_la_fin = dessiner_a_chaque_var.get() == 'Dessiner à la fin'
                 if stop_var.get():
                     stop_var.set(0)
                     raise StopIteration
