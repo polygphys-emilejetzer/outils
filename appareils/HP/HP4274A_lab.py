@@ -706,10 +706,11 @@ def main():
     res_label = ttk.Label(root, text='Mesure (F)')
     
     # Paramètres de graphique
-    dessiner_a_chaque_var = tk.StringVar(root, value=('Dessiner à chaque point',
-                                                      'Dessiner à chaque courbe',
-                                                      'Dessiner à la fin'))
-    dessiner_a_chaque_ctl = tk.Listbox(root, listvariable=dessiner_a_chaque_var, height=1)
+    valeurs = ('Dessiner à chaque point',
+               'Dessiner à chaque courbe',
+               'Dessiner à la fin')
+    dessiner_a_chaque_var = tk.StringVar(root, value=valeurs[0])
+    dessiner_a_chaque_ctl = tk.Combobox(root, textvariable=dessiner_a_chaque_var, values=valeurs, state=readonly)
 
     # Positionnement
     pad = 5
