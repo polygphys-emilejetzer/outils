@@ -30,6 +30,8 @@ from numpy import linspace  # Domaine de balayage
 from pandas import DataFrame  # Stockage et manipulation des données
 from matplotlib import pyplot as plt  # Affichage des données
 
+from polygphys.outils.reseau.courriel import Courriel
+
 
 class HP4274AException(Exception):
     """Exception générique pour l'appareil HP4274A."""
@@ -286,6 +288,16 @@ def dessiner(ax, df, canvas, vb):
     ax.set_ylabel('Mesure de capacité (F)')
     canvas.draw()
 
+def partager(df: DataFrame, sauvegarde: Path):
+    'Envoyer les données par courriel'
+    pièces_jointes = tuple(filter(Path.is_file, sauvegarde.iterdir()))
+    courriel = Courriel(destinataire='emile.jetzer@polymtl.ca',
+                        expéditeur='emile.jetzer@polymtl.ca',
+                        objet='Courbes C-V pour PHS8302',
+                        contenu='Courbes C-V (voir les pièces jointes pour les détails).',
+                        pièces_jointes=pièces_jointes)
+    courriel.envoyer('smtp.polymtl.ca')
+
 def exe(root,
         matricule_var,
         ressource_var,
@@ -457,6 +469,7 @@ def exe(root,
         msg += f'\n{traceback.format_exc()}'
         logging.error(msg)
     finally:
+        partager(df, sauvegarde)
         # Toujours fermer la connection à l'appareil
         hp4274a.close()
 
