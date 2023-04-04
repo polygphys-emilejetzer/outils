@@ -275,7 +275,7 @@ def enregistrer(df: DataFrame, sauvegarde: Path, comp: str):
     plt.savefig(sauvegarde / 'fig.png')
     plt.close(fig)
 
-def dessiner(ax, df, canvas, vb):
+def dessiner(ax, df, canvas, vb, axes_var):
     ax.clear()
     ax.set_axis_on()
     df.plot(ax=ax, style='.', legend=True)
@@ -286,6 +286,20 @@ def dessiner(ax, df, canvas, vb):
                    cs[::int(len(cs) / 10)]])
     ax.set_xlabel('Potentiel de biais (V)')
     ax.set_ylabel('Mesure de capacité (F)')
+    
+    if axes_var.get() == 'loglog':
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+    elif axes_var.get() == 'xlog':
+        ax.set_xscale('log')
+        ax.set_yscale('linear')
+    elif axes_var.get() == 'ylog':
+        ax.set_xscale('linear')
+        ax.set_yscale('log')
+    else:
+        ax.set_xscale('linear')
+        ax.set_yscale('linear')
+    
     canvas.draw()
 
 def partager(df: DataFrame, sauvegarde: Path):
@@ -317,7 +331,8 @@ def exe(root,
         max_freq_var,
         dessiner_a_chaque_var,
         moy_var,
-        sauvegarde_var):
+        sauvegarde_var,
+        axes_var):
     """
     Prendre une série de mesures.
 
@@ -445,7 +460,7 @@ def exe(root,
 
                     # Clear axis
                     if dessiner_a_chaque_point:
-                        dessiner(ax, df, canvas, vb)
+                        dessiner(ax, df, canvas, vb, axes_var)
                 else:
                     with (sauvegarde / 'erreurs.txt').open('a') as F:
                         print(f, v, res, file=F)
@@ -455,10 +470,10 @@ def exe(root,
                 root.update()
             
             if dessiner_a_chaque_courbe:
-                dessiner(ax, df, canvas, vb)
+                dessiner(ax, df, canvas, vb, axes_var)
 
         if dessiner_a_la_fin:
-            dessiner(ax, df, canvas, vb)
+            dessiner(ax, df, canvas, vb, axes_var)
 
         enregistrer(df, sauvegarde, comp)
     except StopIteration:
@@ -735,6 +750,9 @@ def main():
                'Dessiner à la fin')
     dessiner_a_chaque_var = tk.StringVar(root, value=valeurs[0])
     dessiner_a_chaque_ctl = ttk.Combobox(root, textvariable=dessiner_a_chaque_var, values=valeurs, state='readonly')
+    axes_var = tk.StringVar(root, 'linear')
+    axes_ctl = ttk.Combobox(root, textvariable=axes_var, values=('linear', 'xlog', 'ylog', 'loglog'), state='readonly')
+    axes_lbl = ttk.Label(root, text='Type d\'axes')
 
     # Positionnement
     pad = 5
@@ -774,18 +792,20 @@ def main():
     res_entry.grid(row=12, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
     
     dessiner_a_chaque_ctl.grid(row=13, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
+    axes_lbl.grid(row=14, column=0, sticky=tk.E, padx=pad, pady=pad)
+    axes_ctl.grid(row=14, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
     
-    exe_bouton.grid(row=14, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    exe1_bouton.grid(row=14, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    stop_bouton.grid(row=15, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    progres.grid(row=16, column=0, columnspan=2,
+    exe_bouton.grid(row=15, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    exe1_bouton.grid(row=15, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    stop_bouton.grid(row=16, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    progres.grid(row=17, column=0, columnspan=2,
                  sticky=tk.E + tk.W, padx=pad, pady=pad)
-    sauvegarde_entry.grid(row=17, column=0, columnspan=2,
+    sauvegarde_entry.grid(row=18, column=0, columnspan=2,
                  sticky=tk.E+tk.W, padx=pad, pady=pad)
     canvas.get_tk_widget().grid(row=0, column=2,
-                                rowspan=17,
+                                rowspan=18,
                                 padx=pad, pady=pad)
-    barre.grid(row=17, column=2, padx=pad, pady=pad)
+    barre.grid(row=18, column=2, padx=pad, pady=pad)
 
     root.mainloop()
     logging.shutdown()
