@@ -710,7 +710,7 @@ def main():
                'Dessiner à chaque courbe',
                'Dessiner à la fin')
     dessiner_a_chaque_var = tk.StringVar(root, value=valeurs[0])
-    dessiner_a_chaque_ctl = ttk.Combobox(root, textvariable=dessiner_a_chaque_var, values=valeurs, state=readonly)
+    dessiner_a_chaque_ctl = ttk.Combobox(root, textvariable=dessiner_a_chaque_var, values=valeurs, state='readonly')
 
     # Positionnement
     pad = 5
