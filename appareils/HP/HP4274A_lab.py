@@ -709,7 +709,7 @@ def main():
     dessiner_a_chaque_var = tk.StringVar(root, value=('Dessiner à chaque point',
                                                       'Dessiner à chaque courbe',
                                                       'Dessiner à la fin'))
-    dessiner_a_chaque_ctl = tk.Listbox(root, listvariable=dessiner_a_chaque_var)
+    dessiner_a_chaque_ctl = tk.Listbox(root, listvariable=dessiner_a_chaque_var, height=1)
 
     # Positionnement
     pad = 5
