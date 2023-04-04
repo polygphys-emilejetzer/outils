@@ -304,7 +304,8 @@ def exe(root,
         min_freq_var,
         max_freq_var,
         dessiner_a_chaque_var,
-        moy_var):
+        moy_var,
+        sauvegarde_var):
     """
     Prendre une série de mesures.
 
@@ -381,6 +382,7 @@ def exe(root,
     _ = _.replace('.', '_')
     sauvegarde /= _
     sauvegarde.mkdir()
+    sauvegarde_var.set(str(sauvegarde))
 
     # Enregistrer les paramètres de mesure
     with (sauvegarde / 'details.txt').open('w') as F:
@@ -618,7 +620,8 @@ def main():
                                                 min_freq_var=min_freq_var,
                                                 max_freq_var=max_freq_var,
                                                 dessiner_a_chaque_var=dessiner_a_chaque_var,
-                                                moy_var=moy_var))
+                                                moy_var=moy_var,
+                                                sauvegarde_var=sauvegarde_var))
     exe1_bouton = ttk.Button(root,
                              text='1 mesure',
                              command=lambda: exe1(root=root,
@@ -677,6 +680,8 @@ def main():
     matricule_label = ttk.Label(root, text="Matricule")
     composante_entry = ttk.Entry(root, textvariable=composante_var)
     composante_label = ttk.Label(root, text="Composante")
+    sauvegarde_var = tk.StringVar(root)
+    sauvegarde_entry = ttk.Entry(root, textvariable=sauvegarde_var, state=tk.DISABLED)
 
     # Barre de progrès
     progres = ttk.Progressbar(root,
@@ -762,10 +767,12 @@ def main():
     stop_bouton.grid(row=15, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
     progres.grid(row=16, column=0, columnspan=2,
                  sticky=tk.E + tk.W, padx=pad, pady=pad)
+    sauvegarde_entry.grid(row=17, column=0, columnspan=2,
+                 sticky=tk.E+tk.W, padx=pad, pady=pad)
     canvas.get_tk_widget().grid(row=0, column=2,
-                                rowspan=16,
+                                rowspan=17,
                                 padx=pad, pady=pad)
-    barre.grid(row=16, column=2, padx=pad, pady=pad)
+    barre.grid(row=17, column=2, padx=pad, pady=pad)
 
     root.mainloop()
     logging.shutdown()
