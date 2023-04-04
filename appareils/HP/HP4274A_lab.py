@@ -423,7 +423,7 @@ def exe(root,
                 res = regler_biais(hp4274a, v, delai=delai)
                 biais_var.set(f'{v:.2e}')
                 root.update()
-                time.sleep(delai)
+                #time.sleep(delai)
                 if res.data_status_A == 'N' or res.value_A < 0:
                     res = mesure_moyenne(hp4274a, 'A2', moy_var.get(), delai=delai)
                     df.loc[v, f] = res
