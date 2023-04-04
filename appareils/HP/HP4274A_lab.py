@@ -273,6 +273,18 @@ def enregistrer(df: DataFrame, sauvegarde: Path, comp: str):
     plt.savefig(sauvegarde / 'fig.png')
     plt.close(fig)
 
+def dessiner(ax, df, canvas, vb):
+    ax.clear()
+    ax.set_axis_on()
+    df.plot(ax=ax, style='.', legend=True)
+    ax.set_xticks(vb, [f'{v:.2e}' for v in vb], rotation=45)
+    cs = linspace(min(df.min()), max(df.max()), 10)
+    ax.set_yticks(cs[::int(len(cs) / 10)],
+                  [f'{c:.2e}' for c in
+                   cs[::int(len(cs) / 10)]])
+    ax.set_xlabel('Potentiel de biais (V)')
+    ax.set_ylabel('Mesure de capacité (F)')
+    canvas.draw()
 
 def exe(root,
         matricule_var,
@@ -290,7 +302,8 @@ def exe(root,
         res_var,
         stop_var,
         min_freq_var,
-        max_freq_var):
+        max_freq_var,
+        dessiner_a_chaque_var):
     """
     Prendre une série de mesures.
 
@@ -374,6 +387,7 @@ def exe(root,
 {comp=}
 {freqs=}
 {vb=}
+{delai=}
 {nom_ressource=}'''
         print(msg, file=F)
         logging.info(msg)
@@ -397,6 +411,9 @@ def exe(root,
 
             # Balayage en potentiel
             for v in vb:
+                dessiner_a_chaque_point = dessiner_a_chaque.get() == 'Dessiner à chaque point'
+                dessiner_a_chaque_courbe = dessiner_a_chaque.get() == 'Dessiner à chaque courbe'
+                dessiner_a_la_fin = dessiner_a_chaque.get() == 'Dessiner à la fin'
                 if stop_var.get():
                     stop_var.set(0)
                     raise StopIteration
@@ -411,20 +428,21 @@ def exe(root,
                     res_var.set(res)
 
                     # Clear axis
-                    ax.clear()
-                    ax.set_axis_on()
-                    df.plot(ax=ax, style='.', legend=True)
-                    ax.set_xticks(vb, [f'{v:.2e}' for v in vb], rotation=45)
-                    cs = linspace(min(df.min()), max(df.max()), 10)
-                    ax.set_yticks(cs[::int(len(cs) / 10)],
-                                  [f'{c:.2e}' for c in
-                                   cs[::int(len(cs) / 10)]])
-                    ax.set_xlabel('Potentiel de biais (V)')
-                    ax.set_ylabel('Mesure de capacité (F)')
-                    canvas.draw()
+                    if dessiner_a_chaque_point:
+                        dessiner(ax, df, canvas, vb)
+                else:
+                    with (sauvegarde / 'erreurs.txt').open('a') as F:
+                        print(f, v, res, file=F)
+                        logging.info(str(res))
 
                 progres.step()
                 root.update()
+            
+            if dessiner_a_chaque_courbe:
+                dessiner(ax, df, canvas, vb)
+
+        if dessiner_a_la_fin:
+            dessiner(ax, df, canvas, vb)
 
         enregistrer(df, sauvegarde, comp)
     except StopIteration:
@@ -596,7 +614,8 @@ def main():
                                                 res_var=res_var,
                                                 stop_var=stop_var,
                                                 min_freq_var=min_freq_var,
-                                                max_freq_var=max_freq_var))
+                                                max_freq_var=max_freq_var,
+                                                dessiner_a_chaque_var=dessiner_a_chaque_var))
     exe1_bouton = ttk.Button(root,
                              text='1 mesure',
                              command=lambda: exe1(root=root,
@@ -685,6 +704,12 @@ def main():
     res_var = tk.StringVar(root)
     res_entry = ttk.Entry(root, textvariable=res_var, state=tk.DISABLED)
     res_label = ttk.Label(root, text='Mesure (F)')
+    
+    # Paramètres de graphique
+    dessiner_a_chaque_var = tk.StringVar(root, value=('Dessiner à chaque point',
+                                                      'Dessiner à chaque courbe',
+                                                      'Dessiner à la fin'))
+    dessiner_a_chaque_ctl = tk.Listbox(root, listvariable=dessiner_a_chaque_var)
 
     # Positionnement
     pad = 5
@@ -720,15 +745,18 @@ def main():
     nbr_entry.grid(row=10, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
     res_label.grid(row=11, column=0, sticky=tk.E, padx=pad, pady=pad)
     res_entry.grid(row=11, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    exe_bouton.grid(row=12, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    exe1_bouton.grid(row=12, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    stop_bouton.grid(row=13, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
-    progres.grid(row=14, column=0, columnspan=2,
+    
+    dessiner_a_chaque_ctl.grid(row=12, column=1, sticky=tk.E+tk.W, padx=pad, pady=pad)
+    
+    exe_bouton.grid(row=13, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    exe1_bouton.grid(row=13, column=1, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    stop_bouton.grid(row=14, column=0, sticky=tk.E + tk.W, padx=pad, pady=pad)
+    progres.grid(row=15, column=0, columnspan=2,
                  sticky=tk.E + tk.W, padx=pad, pady=pad)
     canvas.get_tk_widget().grid(row=0, column=2,
-                                rowspan=14,
+                                rowspan=15,
                                 padx=pad, pady=pad)
-    barre.grid(row=14, column=2, padx=pad, pady=pad)
+    barre.grid(row=15, column=2, padx=pad, pady=pad)
 
     root.mainloop()
     logging.shutdown()
