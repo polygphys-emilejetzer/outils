@@ -29,7 +29,7 @@ class Gestionnaire:
     def list_resources(self):
         return self.rm.list_resources()
 
-    def open(self, nom: str) -> Appareil:
+    def open(self, nom: str) -> object:
         return Appareil(self, nom).open()
 
     def grid(self):
