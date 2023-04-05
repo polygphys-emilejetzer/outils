@@ -649,7 +649,8 @@ def main():
                                                 max_freq_var=max_freq_var,
                                                 dessiner_a_chaque_var=dessiner_a_chaque_var,
                                                 moy_var=moy_var,
-                                                sauvegarde_var=sauvegarde_var))
+                                                sauvegarde_var=sauvegarde_var,
+                                                axes_var=axes_var))
     exe1_bouton = ttk.Button(root,
                              text='1 mesure',
                              command=lambda: exe1(root=root,
