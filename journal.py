@@ -326,8 +326,8 @@ class Journal(Handler):
             csv.touch()
 
         message.to_csv(csv, mode='a', header=en_têtes, index=False)
-        self.repo.add(csv.name)
+        #self.repo.add(csv.name)
 
-        self.repo.commit(msg, '-a', '--amend')
+        #self.repo.commit(msg, '-a', '--amend')
 
 # TODO Modèle de base de données pour journal
