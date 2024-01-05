@@ -356,3 +356,47 @@ class FichierConfig(ConfigParser):
             rés: str = fp.getvalue()
 
         return rés
+
+
+class BDConfig(ConfigParser):
+    
+    def __init__(self, adresse: str, table: str):
+        self._table = BaseTableau(adresse, table)
+    
+    def optionxform(self, texte: str):
+        return str(texte)
+    
+    def default(self):
+        pass
+    
+    def màj_locale(self):
+        for i, rangée in self._table.iterrows():
+            super()[rangée.section][rangée.clé] = rangée.valeur
+    
+    def màj_distante(self):
+        df = super()._table.df
+        for sec in super().sections():
+            for clé, val in super()[sec].items():
+                df.loc[df.where(df.section == sec & df.clé == clé), 'val'] = val
+        super()._table.màj(df)
+    
+    def __getitem__(self, item):
+        self.màj_locale()
+        super().__getitem__(item)
+    
+    def __setitem__(self, item, val):
+        self.màj_locale()
+        super().__setitem__(item, val)
+        self.màj_distante()
+    
+    def __getattr__(self, attr):
+        self.màj_locale()
+        super().__getattr__(attr)
+        self.màj_distante()
+    
+    def __setattr__(self, attr, val):
+        self.màj_locale()
+        super().__setattr__(attr, val)
+        self.màj_distante()
+    
+    

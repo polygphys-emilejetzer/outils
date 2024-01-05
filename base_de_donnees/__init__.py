@@ -97,7 +97,8 @@ class BaseDeDonnées:
                table: str,
                columns: tuple[str] = tuple(),
                where: tuple = tuple(),
-               errors: str = 'ignore') -> pd.DataFrame:
+               errors: str = 'ignore',
+               alias=None) -> pd.DataFrame:
         """
         Sélectionne des colonnes et items de la base de données.
 
@@ -139,7 +140,7 @@ class BaseDeDonnées:
 
         return df
 
-    def update(self, table: str, values: pd.DataFrame):
+    def update(self, table: str, values: pd.DataFrame, alias=None):
         """
         Mets à jour des items déjà présents dans la base de données.
 
@@ -189,7 +190,7 @@ class BaseDeDonnées:
         with self.begin() as con:
             values.to_sql(table, con, if_exists='append', index=False)
 
-    def delete(self, table: str, values: pd.DataFrame):
+    def delete(self, table: str, values: pd.DataFrame, alias=None):
         """
         Retire une entrée de la base de données.
 
@@ -215,7 +216,7 @@ class BaseDeDonnées:
             r = requête.where(clause)
             self.execute(r)
 
-    def màj(self, table: str, values: pd.DataFrame):
+    def màj(self, table: str, values: pd.DataFrame, alias=None):
         """
         Met à jour des entrées de la base de données.
 
@@ -376,7 +377,7 @@ class BaseDeDonnées:
 
         return res
 
-    def index(self, table: str) -> pd.Index:
+    def index(self, table: str, alias=None, résoudre_alias: bool = False) -> pd.Index:
         """
         Retourne l'index d'un tableau (colonne `index`).
 
@@ -386,19 +387,29 @@ class BaseDeDonnées:
         :rtype: pandas.Index
 
         """
-        requête = sqla.select([self.table(
-            table).columns[self.index_col]]).select_from(self.table(table))
+        requête = sqla.select([self.table(table).columns[self.index_col]])\
+                      .select_from(self.table(table))
+        
+        if résoudre_alias:
+            existence_alias = sqla.select([alias.table.columns['alias']])\
+                                  .where(
+            requête = requête.where(~existence_alias)
 
         with self.begin() as con:
             résultat = con.execute(requête)
             res = pd.Index(r[self.index_col] for r in résultat)
             return res
 
+    def résoudre_alias(self, rangée: pd.Series, df: pd.DataFrame, alias):
+        pass
+
     def loc(self,
             table: str,
             columns: tuple[str] = None,
             where: tuple = tuple(),
-            errors: str = 'ignore'):
+            errors: str = 'ignore',
+            alias=None,
+            résoudre_alias: bool = False):
         """
         Retourne un objet de sélection pandas.
 
@@ -417,15 +428,21 @@ class BaseDeDonnées:
         if columns is None:
             columns = self.columns(table)
 
-        res = self.select(table, columns, where, errors).loc
+        res = self.select(table, columns, where, errors)
+        
+        if résoudre_alias:
+            fct = partial(self.résoudre_alias, df=res, alias=alias)
+            res = res.apply(fct, axis=1)
 
-        return res
+        return res.loc
 
     def iloc(self,
              table: str,
              columns: tuple[str] = tuple(),
              where: tuple = tuple(),
-             errors: str = 'ignore'):
+             errors: str = 'ignore',
+             alias=None,
+             résoudre_alias: bool = False):
         """
         Retourne un objet de sélection numérique pandas.
 
@@ -495,7 +512,8 @@ class BaseTableau:
                  db: BaseDeDonnées,
                  table: str,
                  index_col: str = 'index',
-                 à_partir_de: pd.DataFrame = None):
+                 à_partir_de: pd.DataFrame = None,
+                 alias: str = None):
         """
         Encapsule de la classe BaseDeDonnées.
 
@@ -532,6 +550,11 @@ class BaseTableau:
 
             with self.db.begin() as connexion:
                 self.db.metadata.reflect(connexion)
+        
+        if alias is not None:
+            self.alias = BaseTableau(self.db, alias)
+        else:
+            self.alias = None
 
     def __getattr__(self, attr: str) -> Any:
         """
@@ -557,7 +580,10 @@ class BaseTableau:
                     if len(sig.parameters) == 1 and 'table' in sig.parameters:
                         résultat = partial(obj, self.nom_table)()
                     elif 'table' in sig.parameters:
-                        partielle = partial(obj, self.nom_table)
+                        if 'alias' in sig.parameters:
+                            partielle = partial(obj, table=self.nom_table, alias=self.alias)
+                        else:
+                            partielle = partial(obj, table=self.nom_table)
 
                         @wraps(partielle)
                         def résultat(*args, **kargs):
