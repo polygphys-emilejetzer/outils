@@ -14,6 +14,10 @@ from subprocess import run
 from dataclasses import dataclass
 from functools import wraps
 from typing import Callable
+import ssl
+
+from smtplib import SMTP
+from email.message import EmailMessage
 
 # Bibliothèque PIPy
 import pandas as pd
@@ -110,7 +114,7 @@ class Repository:
         """
         run(['git', 'rm'] + list(args), cwd=self.path)
 
-    def commit(self, msg: str, *args):
+    def commit(self, msg: str|Path, *args):
         """
         Commettre les changements.
 
@@ -126,6 +130,10 @@ class Repository:
         None.
 
         """
+        
+        if isinstance(msg, Path):
+            msg = msg.read_text('utf-8')
+        
         run(['git', 'commit', '-m', msg] + list(args), cwd=self.path)
 
     def pull(self):
@@ -238,7 +246,7 @@ class JournalBD:
             return résultat
 
 
-class Journal(Handler):
+class CSVHandler(FileHandler):
     """Journal compatible avec le module logging.
 
     Maintiens une base de données des changements apportés,
@@ -249,7 +257,7 @@ class Journal(Handler):
     def __init__(self,
                  level: float,
                  dossier: Path,
-                 tableau: JournalBD):
+                 tableau: JournalBD = None):
         """Journal compatible avec le module logging.
 
         Maintiens une base de données des changements apportés,
@@ -270,22 +278,9 @@ class Journal(Handler):
         None.
 
         """
-        self.repo: Repository = Repository(dossier)
-        self.tableau: JournalBD = tableau
+        self.dossier: Repository = Repository(dossier)
 
         super().__init__(level)
-
-    @property
-    def fichier(self):
-        """Fichier de base de données (pour SQLite)."""
-        return self.tableau.adresse
-
-    # Interface avec le répertoire git
-
-    def init(self):
-        """Initialise le répertoire git et la base de données."""
-        self.repo.init()
-        # self.tableau.initialiser()
 
     # Fonctions de logging.Handler
 
@@ -317,7 +312,6 @@ class Journal(Handler):
                                 'msg': [msg],
                                 'head': [self.repo.head]})
 
-        # self.tableau.append(message)
         csv = Path(self.repo.path) / 'résumé.csv'
         if csv.exists():
             en_têtes = False
@@ -326,8 +320,79 @@ class Journal(Handler):
             csv.touch()
 
         message.to_csv(csv, mode='a', header=en_têtes, index=False)
-        #self.repo.add(csv.name)
 
-        #self.repo.commit(msg, '-a', '--amend')
+Journal = CSVHandler  # Pour la rétro-compatibilité
+
+class GitHandler(Handler):
+
+    def __init__(self, level: float, dossier: Path):
+        self.repo: Repository = Repository(dossier)
+        
+        super().__init__(level)
+    
+    def init(self):
+        self.repo.init()
+    
+    def flush(self):
+        pass
+    
+    def emit(self, record: LogRecord):
+        msg = record.getMessage()
+        
+        message = pd.DataFrame({'créé': [record.created],
+                                'niveau': [record.levelno],
+                                'logger': [record.name],
+                                'msg': [msg],
+                                'head': [self.repo.head]})
+
+        self.repo.commit(message.to_string(), '-a')
+        
 
 # TODO Modèle de base de données pour journal
+
+# syslog & courriels pour la facilité d'accès et l'intégration avec launchd et systemd
+
+class CourrielHandler(Handler):
+
+    def __init__(self,
+                level: float,
+                 mailhost: str|tuple[str, int],
+                 fromaddr: str,
+                 toaddrs: list[str],
+                 subject: str = '[{record.levelname}] Problème dans {record.module}', *, credentials: tuple[str, str] = None):
+        super().__init__(level)
+    
+    def flush(self):
+        pass
+    
+    def emit(self, record: LogRecord):
+        message = EmailMessage()
+        message.set_content(record.getMessage())
+        message['Subject'] = self.getSubject(record)
+        message['From'] = self.fromaddr
+        message['To'] = ','.join(self.toaddrs)
+        
+        ctx = ssl.create_default_context()
+        
+        if isinstance(mailhost, str):
+            mailhost = mailhost.rsplit(':', 1)
+        if len(mailhost) == 1:
+            mailhost = mailhost + (587,) # Port par défaut
+        with SMTP(*mailhost) as smtp:
+            smtp.login(*self.credentials)
+            smtp.send_message(message)
+    
+    def getSubject(self, record: LogRecord):
+        return self.subject.format(record=record)
+
+class SysLogHandler(Handler):
+    
+    def __init__(self, level: int = syslog.LOG_ALERT, facility: int = syslog.LOG_SYSLOG, options: int = syslog.LOG_PID | syslog.LOG_CONS):
+        self.facility = facility
+        super().__init__(level)
+    
+    def flush(self):
+        pass
+    
+    def emit(self, record: LogRecord):
+        pass
