@@ -391,8 +391,8 @@ class BaseDeDonnées:
                       .select_from(self.table(table))
         
         if résoudre_alias:
-            existence_alias = sqla.select([alias.table.columns['alias']])\
-                                  .where(
+            existence_alias = sqla.select([alias.table.columns['alias']])#\
+#                                  .where(
             requête = requête.where(~existence_alias)
 
         with self.begin() as con:
