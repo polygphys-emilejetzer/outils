@@ -130,7 +130,7 @@ class BaseDeDonnées:
         columns = [self.table(table).columns[self.index_col]] + list(
             filter(lambda x: x.name in columns, self.table(table).columns))
 
-        requête = sqla.select(columns).select_from(self.table(table))
+        requête = sqla.select(*columns).select_from(self.table(table))
 
         for clause in where:
             requête = requête.where(clause)
