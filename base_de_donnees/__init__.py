@@ -583,6 +583,7 @@ class BaseTableau:
                         if 'alias' in sig.parameters:
                             partielle = partial(obj, table=self.nom_table, alias=self.alias)
                         else:
+                            print(f'Pas d\'alias, {table=}')
                             partielle = partial(obj, table=self.nom_table)
 
                         @wraps(partielle)
