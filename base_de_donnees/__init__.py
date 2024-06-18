@@ -578,18 +578,19 @@ class BaseTableau:
                     sig = signature(obj)
 
                     if len(sig.parameters) == 1 and 'table' in sig.parameters:
-                        résultat = partial(obj, self.nom_table)()
+                        résultat = partial(obj, table=self.nom_table)()
                     elif 'table' in sig.parameters:
                         if 'alias' in sig.parameters:
                             partielle = partial(obj, table=self.nom_table, alias=self.alias)
                         else:
-                            print(f'Pas d\'alias, {table=}')
                             partielle = partial(obj, table=self.nom_table)
 
                         @wraps(partielle)
                         def résultat(*args, **kargs):
                             try:
                                 self.db.index_col, vieux_index_col = self.index_col, self.db.index_col
+                                print(args)
+                                print(kargs)
                                 res = partielle(*args, **kargs)
                             finally:
                                 self.db.index_col = vieux_index_col
