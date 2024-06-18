@@ -578,12 +578,12 @@ class BaseTableau:
                     sig = signature(obj)
 
                     if len(sig.parameters) == 1 and 'table' in sig.parameters:
-                        résultat = partial(obj, table=self.nom_table)()
+                        résultat = partial(obj, self.nom_table)()
                     elif 'table' in sig.parameters:
                         if 'alias' in sig.parameters:
-                            partielle = partial(obj, table=self.nom_table, alias=self.alias)
+                            partielle = partial(obj, self.nom_table, alias=self.alias)
                         else:
-                            partielle = partial(obj, table=self.nom_table)
+                            partielle = partial(obj, self.nom_table)
 
                         @wraps(partielle)
                         def résultat(*args, **kargs):
