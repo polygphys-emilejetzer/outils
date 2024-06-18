@@ -387,7 +387,7 @@ class BaseDeDonnées:
         :rtype: pandas.Index
 
         """
-        requête = sqla.select([self.table(table).columns[self.index_col]])\
+        requête = sqla.select(self.table(table).columns[self.index_col])\
                       .select_from(self.table(table))
         
         if résoudre_alias:
