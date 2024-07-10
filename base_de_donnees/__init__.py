@@ -396,8 +396,8 @@ class BaseDeDonnées:
             requête = requête.where(~existence_alias)
 
         with self.begin() as con:
-            résultat = con.execute(requête).mappings()
-            res = pd.Index(r[self.index_col] for r in résultat)
+            résultat = con.execute(requête)
+            res = pd.Index(résultat.columns(self.index_col))
             return res
 
     def résoudre_alias(self, rangée: pd.Series, df: pd.DataFrame, alias):
