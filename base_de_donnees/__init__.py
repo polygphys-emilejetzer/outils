@@ -396,10 +396,7 @@ class BaseDeDonnées:
             requête = requête.where(~existence_alias)
 
         with self.begin() as con:
-            résultat = con.execute(requête)
-            print(résultat)
-            for r in résultat:
-                print(r)
+            résultat = con.execute(requête).mappings()
             res = pd.Index(r[self.index_col] for r in résultat)
             return res
 
