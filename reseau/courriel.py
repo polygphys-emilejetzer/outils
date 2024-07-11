@@ -214,7 +214,7 @@ class Courriel:
                         continue
                     yield PièceJointe(nom, content_type, contenu)
 
-    def envoyer(self, adresse, port=25):
+    def envoyer(self, adresse, port=587):
         serveur = smtplib.SMTP(adresse, port)
         serveur.send_message(self.message)
         serveur.quit()
